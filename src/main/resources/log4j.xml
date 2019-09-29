@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+        <appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+            <!--设置输出样式-->
+            <layout class="org.apache.log4j.PatternLayout">
+                <param name="ConversionPattern" value="[%-5p] %d{yyyy-MM-dd HH:mm:ss,SSS} %r %c %t %l"/>
+            </layout>
+        </appender>
+        <appender name="rollingFileAppender" class="org.apache.log4j.RollingFileAppender">
+            <param name="File" value="/home/jiangzeen/project_log/rollingFile.log"/>
+            <param name="Append" value="true"/>
+            <param name="MaxBackIndex" value="10"/>
+            <param name="MaxFileSize" value="2M"/>
+            <layout class="org.apache.log4j.PatternLayout">
+                <param name="ConversionPattern" value="[%-5p] %d{yyyy-MM-dd HH:mm:ss,SSS} %r %c %t %l"/>
+            </layout>
+        </appender>
+        <appender name="dailyRollingFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
+            <param name="File" value="/home/jiangzeen/project_log/dailyRollingLog.log"/>
+            <param name="DatePattern" value="'.'yyyy-MM-dd-HH-mm'.log'"/>
+            <layout class="org.apache.log4j.PatternLayout">
+                <param name="ConversionPattern" value="[%-5p] %d{yyyy-MM-dd HH:mm:ss,SSS} %r %c %t %l"/>
+            </layout>
+        </appender>
+        <root>
+            <level value="INFO"/>
+            <appender-ref ref="consoleAppender"/>
+            <appender-ref ref="dailyRollingFileAppender"/>
+        </root>
+</log4j:configuration>
