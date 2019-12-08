@@ -18,7 +18,13 @@ import java.util.List;
 
 public class QuestionBreakUtil {
 
-
+    /**
+     * 调用init初始化word文档为text
+     * @param name 文件url/一般为服务器上已经保存文件
+     * @return text 解析文档
+     * @throws FileNotFoundException 文件没找到
+     * @throws IllegalArgumentException 文件解析错误
+     */
     public static String init(String name) throws FileNotFoundException, IllegalArgumentException {
         File target = new File(name);
         if (!target.exists()) {
