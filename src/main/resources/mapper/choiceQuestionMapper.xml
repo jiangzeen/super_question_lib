@@ -1,0 +1,40 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.ChoiceQuestionMapper">
+
+    <sql id="cq_base_column">
+        choice_question_id, choice_question_body, choice_question_level, option_a, option_b, option_c,
+                                        option_d, answer, question_lib_id, question_type_id, right_time, wrong_time,
+                                        create_time, last_modify, keyword
+    </sql>
+    <sql id="cq_main_column">
+        choice_question_body,option_a, option_b, option_c,option_d,answer
+    </sql>
+    <insert id="insertCQuestion" useGeneratedKeys="true">
+        insert into sq_choice_question (choice_question_body, choice_question_level, option_a, option_b, option_c,
+                                        option_d, answer, question_lib_id, question_type_id, right_time, wrong_time,
+                                        create_time, last_modify, keyword)
+        value (#{cq.questionBody}, #{cq.questionLevel}, #{cq.optionA}, #{cq.optionB}, #{cq.optionC}, #{cq.optionD},
+              #{cq.answer}, #{cq.questionLibId}, #{cq.questionTypeId}, #{cq.rightTime}, #{cq.wrongTime}, #{cq.createTime},
+              #{cq.lastModify}, #{cq.keyWord});
+    </insert>
+
+    <resultMap id="cq" type="com.jxust.qq.superquestionlib.po.ChoiceQuestion">
+        <id property="questionId" column="choice_question_id"/>
+        <result property="questionLevel" column="choice_question_level"/>
+        <result property="questionLibId" column="question_lib_id"/>
+        <result property="questionTypeId" column="question_type_id"/>
+        <result property="questionBody" column="choice_question_body"/>
+        <result property="answer"       column="answer"/>
+        <result property="rightTime" column="right_time"/>
+        <result property="wrongTime" column="wrong_time"/>
+        <result property="keyWord" column="keyword"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastModify" column="last_modify"/>
+        <result property="optionA" column="option_a"/>
+        <result property="optionB" column="option_b"/>
+        <result property="optionC" column="option_c"/>
+        <result property="optionD" column="option_d"/>
+    </resultMap>
+</mapper>

@@ -1,0 +1,26 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.LibTagMapper">
+
+    <sql id="base_column">
+        lib_tag_id, lib_tag_name, parent_tag_id
+    </sql>
+    <select id="selectTagByTagId" resultMap="tag">
+        select <include refid="base_column"/>
+        from sq_lib_tag;
+    </select>
+    <select id="selectTagsByParentTagId" resultMap="tag">
+         select
+         <include refid="base_column"/>
+         from sq_lib_tag where parent_tag_id=#{parentTagId}
+    </select>
+    <select id="selectParentTags" resultMap="tag">
+        select * from sq_lib_tag where parent_tag_id=0
+    </select>
+    <resultMap id="tag" type="com.jxust.qq.superquestionlib.po.LibTag">
+        <id property="tagId" column="lib_tag_id"/>
+        <result property="tagName" column="lib_tag_name" />
+        <result property="parentTagId" column="parent_tag_id"/>
+    </resultMap>
+</mapper>

@@ -3,6 +3,12 @@ spring:
     url: "jdbc:mysql://localhost:3306/super_question_lib?useSSL=false"
     username: "root"
     password: "jiang.141201"
+  mail:
+    host: smtp.qq.com
+    username: 1363646276@qq.com
+    password: ueaxhybgheydhaih
+  profiles:
+    include: redis
 mybatis:
   type-aliases-package: com.jxust.qq.superquestionlib.dao.mapper, com.jxust.qq.superquestionlib.po
   mapper-locations: classpath:mapper/*.xml

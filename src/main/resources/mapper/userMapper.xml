@@ -7,7 +7,7 @@
         user_name, user_avatar, user_nick, user_last_login_time
     </sql>
     <sql id="select_base_all_info_column">
-        user_name, user_password, user_nick, user_avatar, user_last_login_time,
+        user_id, user_name, user_password, user_nick, user_avatar, user_last_login_time,
         user_create_time, user_sex, user_school_id, user_major_id
     </sql>
     <insert id="insertUser" useGeneratedKeys="true" parameterType="com.jxust.qq.superquestionlib.po.User">
@@ -17,6 +17,21 @@
                                  #{user.userLastLoginTime}, #{user.userCreateTime}, #{user.userSex}, #{user.userSchoolId},
                                  #{user.userMajorId})
     </insert>
+    <update id="updatePassword">
+        update sq_user set user_password=#{password} where user_name=#{username}
+    </update>
+    <update id="updateLoginTime">
+        update sq_user set user_last_login_time=#{time} where user_name=#{username}
+    </update>
+    <update id="updateUser">
+        update sq_user set user_password=#{user.userPassword}, user_nick=#{user.userNick}, user_avatar=#{user.userAvatar},
+                           user_last_login_time=#{user.userLastLoginTime},user_school_id=#{user.userSchoolId},
+                           user_major_id=#{user.userMajorId}, user_sex=#{user.userSex}
+        where user_name=#{user.userName}
+    </update>
+    <update id="updateAvatarAndMajor">
+        update sq_user set user_avatar=#{avatar}, user_major_id=#{majorId} where user_name=#{username}
+    </update>
     <select id="findAllUsers" resultType="com.jxust.qq.superquestionlib.po.User">
         select * from sq_user
     </select>
@@ -29,5 +44,8 @@
         select
         <include refid="select_base_all_info_column"/>
         from sq_user where user_name=#{username} and user_password=#{password}
+    </select>
+    <select id="selectPasswordByUsername" resultType="java.lang.String">
+        select user_password from sq_user where user_name=#{username}
     </select>
 </mapper>    

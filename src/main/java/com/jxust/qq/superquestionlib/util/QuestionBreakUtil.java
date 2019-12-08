@@ -1,0 +1,83 @@
+package com.jxust.qq.superquestionlib.util;
+
+import com.jxust.qq.superquestionlib.po.ChoiceQuestion;
+import com.jxust.qq.superquestionlib.po.ExplainQuestion;
+import com.jxust.qq.superquestionlib.po.FillQuestion;
+import com.jxust.qq.superquestionlib.po.TFQuestion;
+import org.apache.poi.ooxml.POIXMLDocument;
+import org.apache.poi.ooxml.extractor.POIXMLTextExtractor;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.xmlbeans.XmlException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
+
+public class QuestionBreakUtil {
+
+
+    public static String init(String name) throws FileNotFoundException, IllegalArgumentException {
+        File target = new File(name);
+        if (!target.exists()) {
+            throw new FileNotFoundException();
+        }
+        String text = readQuestionFile (name);
+        if (text == null) {
+            throw new IllegalArgumentException();
+        }
+        return text;
+    }
+
+
+    /**
+     * 分解传入题库中的选择题
+     * @param filename 文件名
+     * @return list
+     */
+    public static List<ChoiceQuestion> breakCQ(String filename, QuestionMark mark) throws IllegalArgumentException, FileNotFoundException {
+        String text = init(filename);
+
+        return null;
+    }
+
+
+    public static List<ExplainQuestion> breakEQ(String filename, QuestionMark mark) throws IllegalArgumentException, FileNotFoundException {
+        String text = init(filename);
+
+        return null;
+    }
+
+    public static List<TFQuestion> breakTFQ(String filename, QuestionMark mark)  throws IllegalArgumentException, FileNotFoundException {
+        String text = init(filename);
+
+        return null;
+    }
+
+    public static List<FillQuestion> breakFQ(String filename, QuestionMark mark)  throws IllegalArgumentException, FileNotFoundException {
+        String text = init(filename);
+
+        return null;
+    }
+
+
+    /**
+     * 使用Apache POI读取docx文件内容
+     * @param file
+     * @return 文件内容
+     */
+    public static String readQuestionFile(String file) {
+        String text;
+        try {
+            OPCPackage opcPackage = POIXMLDocument.openPackage(file);
+            POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
+            text = extractor.getText();
+            return text;
+        } catch (IOException | XmlException | OpenXML4JException ignored) {
+
+        }
+        return null;
+    }
+}

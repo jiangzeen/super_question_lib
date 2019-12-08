@@ -38,12 +38,20 @@ public class ScannerQuestion {
     }
 
     @Test
+    public void test_match() {
+        Pattern p = Pattern.compile("\\d+");
+        System.out.println(p.matcher("123123").find());
+        System.out.println(Arrays.toString("sanguo.png".split("\\.")));
+    }
+
+
+    @Test
     public void test_english() {
         String etext = getDocxText("english.docx");
         // System.out.println(etext);
         Pattern ep = Pattern.compile("(\\d+([.])[\\s\\S]*?)([.]\\s\\S*?)");
         /*匹配选项:1.匹配[A-D] */
-        Pattern ap = Pattern.compile("([ABCD]([.])[\\s\\S]*?)(?=[\\s*?]([ABCD\\d+\\s*]))");
+        Pattern ap = Pattern.compile("(([A-D][.])(.+?))(?=[\\s])");
         assert etext != null;
         Matcher em = ep.matcher(etext);
         Matcher am = ap.matcher(etext);

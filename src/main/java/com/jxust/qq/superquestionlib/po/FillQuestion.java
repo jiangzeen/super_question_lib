@@ -1,22 +1,13 @@
 package com.jxust.qq.superquestionlib.po;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class FillQuestion {
+public class FillQuestion extends Question {
 
-    private long fillQuestionId;
-    private int  fillQuestionLevel;
-    private String fillQuestionBody;
-    private String answer;
-    private long questionLibId;
-    private long questionTypeId;
-    private long rightTime;
-    private long wrongTime;
-    private String keyWord;
-    private LocalDateTime createTime;
-    private LocalDateTime lastModify;
 }

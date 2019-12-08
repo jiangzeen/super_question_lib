@@ -1,23 +1,14 @@
 package com.jxust.qq.superquestionlib.po;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class TFQuestion {
+public class TFQuestion extends Question{
 
-    private long TfQuestionId;
-    private int TfQuestionLevel;
-    private String TfQuestionBody;
     private String OptionA;
     private String OptionB;
-    private String answer;
-    private long questionLibId;
-    private long questionTypeId;
-    private long rightTime;
-    private long wrongTime;
-    private String keyWord;
-    private LocalDateTime createTime;
-    private LocalDateTime lastModify;
 }

@@ -1,0 +1,16 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.QuestionLibMapper">
+
+    <sql id="base_column">
+        question_lib_id, question_lib_level, question_lib_name, question_lib_author_id,
+        question_lib_create_time, question_lib_tag_id, question_lib_mark, question_lib_url
+    </sql>
+    <insert id="insertQuestionLib" useGeneratedKeys="true" keyProperty="questionLibId">
+        insert into sq_question_lib(question_lib_level, question_lib_name, question_lib_author_id,
+                                    question_lib_create_time, question_lib_tag_id, question_lib_mark, question_lib_url)
+        value (#{lib.questionLibLevel}, #{lib.questionLibName}, #{lib.questionLibAuthorId},
+             #{lib.questionLibCreateTime}, #{lib.questionLibTagId}, #{lib.questionLibMark}, #{lib.questionLibUrl});
+    </insert>
+</mapper>
