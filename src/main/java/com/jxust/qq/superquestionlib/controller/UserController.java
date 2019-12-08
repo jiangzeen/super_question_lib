@@ -126,6 +126,11 @@ public class UserController {
         user.setUserMajorId(Integer.valueOf(majorId));
         // 保存图片
         String imgurl = userService.processAvatar(username, avatarFile);
+        if (imgurl == null) {
+            Result res =  Result.FAILD(data);
+            res.setMessage("失败,用户头像文件格式错误");
+            return res;
+        }
         log.info("上传文件[{}]成功", imgurl);
         user.setUserAvatar(imgurl);
         userService.completeInfo(username, imgurl, majorId);
