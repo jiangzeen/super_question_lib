@@ -1,0 +1,28 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.QuestionMapper">
+    <sql id="base_column">
+        question_id, question_content, question_level, question_lib_id, question_type_id,
+        right_time,wrong_time, create_time,last_modify, keyword
+    </sql>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="questionId">
+        insert into sq_question(question_content, question_level, question_lib_id, question_type_id,
+                                right_time, wrong_time, create_time, last_modify, keyword)
+        value (#{question.questionContent}, #{question.questionLevel}, #{question.questionLibId}, #{question.questionTypeId},
+               #{question.rightTime}, #{question.wrongTime}, #{question.createTime}, #{question.lastModify}, #{question.keyword})
+    </insert>
+
+    <resultMap id="base_mapper" type="com.jxust.qq.superquestionlib.po.Question">
+        <id  property="questionId" column="question_id"/>
+        <result property="questionContent" column="question_content"/>
+        <result property="questionLevel" column="question_level"/>
+        <result property="questionLibId" column="question_lib_id"/>
+        <result property="questionTypeId" column="question_type_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="rightTime" column="right_time"/>
+        <result property="wrongTime" column="wrong_time"/>
+        <result property="lastModify" column="last_modify"/>
+        <result property="keyWord" column="keyword"/>
+    </resultMap>
+</mapper>

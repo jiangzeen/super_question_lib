@@ -30,15 +30,17 @@ public class QuestionLibController {
     @PostMapping("/user/question_lib/create/{username}")
     public Result createLib(@PathVariable("username") String username, @RequestParam("question_file") MultipartFile file,
                             @RequestParam("tag_id") String tagId, @RequestParam("mark") String mark,
+                            @RequestParam("hasPrivate") String hasPrivate,
                             @RequestParam("request_mark")List<QuestionMark> questionMarkList) {
         String originName = file.getOriginalFilename();
         try {
             String saveUrl = questionLibService.saveOriginLibFile(file, username);
-            int libId = questionLibService.createQuestionLibByUser(username, originName, Integer.valueOf(tagId), saveUrl, mark);
+            int libId = questionLibService.createQuestionLibByUser(username, originName, Integer.parseInt(tagId), saveUrl, mark, Integer.parseInt(hasPrivate));
+            // 获取到原始上传文件在服务器中的位置 -- example: english.docx
             String fileUrl = questionLibService.getFileUrl(saveUrl);
             //TODO 修改该方法的参数--需要获取到QuestionMark参数进行分解Question
             try {
-                questionLibService.createQuestionByLibFile(fileUrl, null, libId, Integer.valueOf(tagId));
+                questionLibService.createQuestionByLibFile(fileUrl, null, libId);
             } catch (FileNotFoundException e) {
                 Result res = Result.FAILD(null);
                 res.setMessage("服务器内部错误!");

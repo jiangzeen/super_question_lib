@@ -11,8 +11,8 @@ public class QuestionLib {
     private long questionLibId;
     private int questionLibLevel;
     private String questionLibName;
-    private long questionLibAuthorId;
     private String questionLibUrl;
+    private int hasPrivate;
     private LocalDateTime questionLibCreateTime;
     private int questionLibTagId;
     private String questionLibMark;

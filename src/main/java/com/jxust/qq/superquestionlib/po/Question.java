@@ -11,8 +11,7 @@ public class Question {
     private int  questionLevel;
     private long questionLibId;
     private long questionTypeId;
-    private String questionBody;
-    private String answer;
+    private String questionContent;
     private long rightTime;
     private long wrongTime;
     private String keyWord;

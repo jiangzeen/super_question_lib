@@ -1,8 +1,7 @@
 package com.jxust.qq.superquestionlib.service;
 
 import com.jxust.qq.superquestionlib.dao.mapper.QuestionLibMapper;
-import com.jxust.qq.superquestionlib.po.ChoiceQuestion;
-import com.jxust.qq.superquestionlib.po.FillQuestion;
+import com.jxust.qq.superquestionlib.po.Question;
 import com.jxust.qq.superquestionlib.po.QuestionLib;
 import com.jxust.qq.superquestionlib.util.QuestionMark;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +39,9 @@ public class QuestionLibService {
 
 
     public int createQuestionLibByUser (String username, String libName,
-                                         int tagId, String libUrl, String mark) {
+                                         int tagId, String libUrl, String mark, int hasPrivate) {
         long userId = userService.findUser(username).getUserId();
         QuestionLib lib = new QuestionLib();
-        lib.setQuestionLibAuthorId(userId);
         lib.setQuestionLibLevel(0);
         lib.setQuestionLibCreateTime(LocalDateTime.now());
         lib.setQuestionLibTagId(tagId);
@@ -89,20 +87,20 @@ public class QuestionLibService {
     }
 
 
-    public void createQuestionByLibFile(String filename, QuestionMark mark, int libId, int typeId) throws FileNotFoundException {
+    public void createQuestionByLibFile(String filename, QuestionMark mark, int libId) throws FileNotFoundException {
         DefaultBreakQuestion bqUtil = new DefaultBreakQuestion(filename);
-        List<ChoiceQuestion> cqList = bqUtil.breakCQuestion(mark);
+        List<Question> cqList = bqUtil.breakQuestion(mark);
         assert cqList != null;
         cqList.forEach(cq->{
+            // TODO 添加题目
+            cq.setKeyWord("");
+            cq.setRightTime(0);
+            cq.setRightTime(0);
+            cq.setQuestionLibId(libId);
+            cq.setQuestionLevel(0);
             cq.setCreateTime(LocalDateTime.now());
             cq.setLastModify(LocalDateTime.now());
-            cq.setQuestionLibId(libId);
-            cq.setQuestionTypeId(typeId);
-            cq.setQuestionLevel(0);
-            cq.setKeyWord("now is null");
-            cq.setRightTime(0);
-            cq.setRightTime(0);
-            questionService.createCQuestion(cq);
+            questionService.insert(cq);
         });
     }
 

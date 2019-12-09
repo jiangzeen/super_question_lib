@@ -1,9 +1,5 @@
 package com.jxust.qq.superquestionlib.util;
 
-import com.jxust.qq.superquestionlib.po.ChoiceQuestion;
-import com.jxust.qq.superquestionlib.po.ExplainQuestion;
-import com.jxust.qq.superquestionlib.po.FillQuestion;
-import com.jxust.qq.superquestionlib.po.TFQuestion;
 import org.apache.poi.ooxml.POIXMLDocument;
 import org.apache.poi.ooxml.extractor.POIXMLTextExtractor;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -26,6 +22,7 @@ public class QuestionBreakUtil {
      * @throws IllegalArgumentException 文件解析错误
      */
     public static String init(String name) throws FileNotFoundException, IllegalArgumentException {
+        assert name != null;
         File target = new File(name);
         if (!target.exists()) {
             throw new FileNotFoundException();
@@ -43,28 +40,11 @@ public class QuestionBreakUtil {
      * @param filename 文件名
      * @return list
      */
-    public static List<ChoiceQuestion> breakCQ(String filename, QuestionMark mark) throws IllegalArgumentException, FileNotFoundException {
+    public static List breakCQ(String filename, QuestionMark mark) throws IllegalArgumentException, FileNotFoundException {
         String text = init(filename);
+        if (mark != null) {
 
-        return null;
-    }
-
-
-    public static List<ExplainQuestion> breakEQ(String filename, QuestionMark mark) throws IllegalArgumentException, FileNotFoundException {
-        String text = init(filename);
-
-        return null;
-    }
-
-    public static List<TFQuestion> breakTFQ(String filename, QuestionMark mark)  throws IllegalArgumentException, FileNotFoundException {
-        String text = init(filename);
-
-        return null;
-    }
-
-    public static List<FillQuestion> breakFQ(String filename, QuestionMark mark)  throws IllegalArgumentException, FileNotFoundException {
-        String text = init(filename);
-
+        }
         return null;
     }
 
