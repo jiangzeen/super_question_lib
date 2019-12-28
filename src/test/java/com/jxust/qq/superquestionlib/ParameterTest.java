@@ -23,7 +23,7 @@ public class ParameterTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         String s = "";
-        s.split("(?<=\\$)[0-9\\.]*");
+        s.split("(?<=\\$)[0-9.]*");
         return Arrays.asList(new Object[][]{
                 {1, 2, 3}
         });

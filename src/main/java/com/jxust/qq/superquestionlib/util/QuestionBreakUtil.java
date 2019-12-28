@@ -21,7 +21,7 @@ public class QuestionBreakUtil {
      * @throws FileNotFoundException 文件没找到
      * @throws IllegalArgumentException 文件解析错误
      */
-    public static String init(String name) throws FileNotFoundException, IllegalArgumentException {
+    public static String init(String name) throws IOException, IllegalArgumentException {
         assert name != null;
         File target = new File(name);
         if (!target.exists()) {
@@ -35,33 +35,20 @@ public class QuestionBreakUtil {
     }
 
 
-    /**
-     * 分解传入题库中的选择题
-     * @param filename 文件名
-     * @return list
-     */
-    public static List breakCQ(String filename, QuestionMark mark) throws IllegalArgumentException, FileNotFoundException {
-        String text = init(filename);
-        if (mark != null) {
-
-        }
-        return null;
-    }
-
 
     /**
      * 使用Apache POI读取docx文件内容
      * @param file
      * @return 文件内容
      */
-    public static String readQuestionFile(String file) {
+    private static String readQuestionFile(String file) throws IOException {
         String text;
         try {
             OPCPackage opcPackage = POIXMLDocument.openPackage(file);
             POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
             text = extractor.getText();
             return text;
-        } catch (IOException | XmlException | OpenXML4JException ignored) {
+        } catch (XmlException | OpenXML4JException ignored) {
 
         }
         return null;

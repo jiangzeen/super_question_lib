@@ -3,13 +3,11 @@ package com.jxust.qq.superquestionlib.service;
 import com.jxust.qq.superquestionlib.dao.mapper.QuestionLibMapper;
 import com.jxust.qq.superquestionlib.po.Question;
 import com.jxust.qq.superquestionlib.po.QuestionLib;
-import com.jxust.qq.superquestionlib.util.QuestionMark;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,13 +85,13 @@ public class QuestionLibService {
     }
 
 
-    public void createQuestionByLibFile(String filename, QuestionMark mark, int libId) throws FileNotFoundException {
+    public void createQuestionByLibFile(String filename, int libId) throws IOException {
         DefaultBreakQuestion bqUtil = new DefaultBreakQuestion(filename);
-        List<Question> cqList = bqUtil.breakQuestion(mark);
+        List<Question> cqList = bqUtil.breakQuestion();
         assert cqList != null;
         cqList.forEach(cq->{
             // TODO 添加题目
-            cq.setKeyWord("");
+            cq.setKeyword("");
             cq.setRightTime(0);
             cq.setRightTime(0);
             cq.setQuestionLibId(libId);

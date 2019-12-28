@@ -6,7 +6,7 @@
         question_id, question_content, question_level, question_lib_id, question_type_id,
         right_time,wrong_time, create_time,last_modify, keyword
     </sql>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="questionId">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="questionId" parameterType="com.jxust.qq.superquestionlib.po.Question">
         insert into sq_question(question_content, question_level, question_lib_id, question_type_id,
                                 right_time, wrong_time, create_time, last_modify, keyword)
         value (#{question.questionContent}, #{question.questionLevel}, #{question.questionLibId}, #{question.questionTypeId},
@@ -23,6 +23,6 @@
         <result property="rightTime" column="right_time"/>
         <result property="wrongTime" column="wrong_time"/>
         <result property="lastModify" column="last_modify"/>
-        <result property="keyWord" column="keyword"/>
+        <result property="keyword" column="keyword"/>
     </resultMap>
 </mapper>

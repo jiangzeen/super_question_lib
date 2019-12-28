@@ -18,6 +18,4 @@ public class User {
     private LocalDateTime userCreateTime;
     private int userSex;
     private int userSchoolId;
-    private int userMajorId;
-
 }

@@ -14,7 +14,7 @@ public class Question {
     private String questionContent;
     private long rightTime;
     private long wrongTime;
-    private String keyWord;
+    private String keyword;
     private LocalDateTime createTime;
     private LocalDateTime lastModify;
 }

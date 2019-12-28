@@ -44,7 +44,6 @@ public class UserService {
         user.setUserAvatar("");
         user.setUserSex(0);
         user.setUserSchoolId(0);
-        user.setUserMajorId(0);
         return mapper.insertUser(user);
     }
 

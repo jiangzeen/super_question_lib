@@ -29,35 +29,51 @@ public class UserController {
         this.redisService = redisService;
         this.mailService = mailService;
     }
+    // TODO 待会删掉
+    @PostMapping("/toRegister")
+    public Result getRegisterCode(@RequestParam("username") String username,
+                                  @RequestParam("password") String password,
+                                  @RequestParam("nickname") String nickname) {
+            int status = userService.createUser(username, password, nickname);
+            if (status < 0) {
+                return Result.SERVERERROR();
+            }
+            JSONObject data = new JSONObject();
+            data.put("username", username);
+            return Result.SUCCESS("注册成功", data);
+    }
 
 
     @PostMapping("/register")
-    public Result register(@RequestParam("username") String username,
-                         @RequestParam("password") String password,
-                         @RequestParam("nickname") String nickname) {
-        int status = userService.createUser(username, password, nickname);
-        if (status < 0) {
-            return Result.SERVERERROR();
-        }
-        JSONObject json = new JSONObject();
-        json.put("username", username);
-        return Result.SUCCESS(json);
-    }
-
-    @PostMapping("/register/{username}/{code}")
-    public Result getRegisterCode(@PathVariable("username") String username,
-                                  @PathVariable("code") String code) {
+    public Result getRegisterCode(@RequestParam("username") String username,
+                                  @RequestParam("password") String password,
+                                  @RequestParam("nickname") String nickname,
+                                  @RequestParam("code") String code) {
         String value = redisService.getValue(username);
         if (value != null && value.equals(code)) {
+            int status = userService.createUser(username, password, nickname);
+            if (status < 0) {
+                return Result.SERVERERROR();
+            }
             JSONObject data = new JSONObject();
-            data.put("registerCode", value);
-            return Result.SUCCESS(data);
+            data.put("username", username);
+            return Result.SUCCESS("注册成功", data);
         }
         Result result = new Result();
         result.setCode(203);
         result.setMessage("验证码错误或验证码已过期");
-        result.setData(null);
+        result.setData(username);
         return result;
+    }
+
+    @PostMapping("/register/verify/{username}")
+    public Result verifyCode(@PathVariable String username, @RequestParam("code")String code) {
+        String value = redisService.getValue(username);
+        if (value != null && value.equals(code)) {
+            return Result.SUCCESS(null);
+        }else {
+            return Result.FAILD(null);
+        }
     }
 
     @PostMapping("/register/send_code/{username}")
@@ -79,7 +95,9 @@ public class UserController {
         token.setUsername(username);
         token.setPassword(password.toCharArray());
         Result result;
+        User user = userService.findUser(username);
         JSONObject data = new JSONObject();
+        data.put("nickname", user.getUserNick());
         data.put("username", username);
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
@@ -123,7 +141,6 @@ public class UserController {
            res.setMessage("失败,用户不存在,请检查username");
            return res;
         }
-        user.setUserMajorId(Integer.valueOf(majorId));
         // 保存图片
         String imgurl = userService.processAvatar(username, avatarFile);
         if (imgurl == null) {
@@ -143,6 +160,6 @@ public class UserController {
         String username = (String) user.getPrincipal();
         user.logout();
         userService.modifyLoginTime(username);
-        return Result.SUCCESS(null);
+        return Result.SUCCESS(username);
     }
 }

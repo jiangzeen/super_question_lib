@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.po.Result;
 import com.jxust.qq.superquestionlib.service.LibTagService;
 import com.jxust.qq.superquestionlib.service.QuestionLibService;
-import com.jxust.qq.superquestionlib.util.QuestionMark;
+import com.jxust.qq.superquestionlib.util.QuestionTypeEnum;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -30,21 +30,18 @@ public class QuestionLibController {
     @PostMapping("/user/question_lib/create/{username}")
     public Result createLib(@PathVariable("username") String username, @RequestParam("question_file") MultipartFile file,
                             @RequestParam("tag_id") String tagId, @RequestParam("mark") String mark,
-                            @RequestParam("hasPrivate") String hasPrivate,
-                            @RequestParam("request_mark")List<QuestionMark> questionMarkList) {
+                            @RequestParam("hasPrivate") String hasPrivate) {
         String originName = file.getOriginalFilename();
         try {
             String saveUrl = questionLibService.saveOriginLibFile(file, username);
+            // TODO 开启事务处理,防止如果解析失败等情况出现
             int libId = questionLibService.createQuestionLibByUser(username, originName, Integer.parseInt(tagId), saveUrl, mark, Integer.parseInt(hasPrivate));
             // 获取到原始上传文件在服务器中的位置 -- example: english.docx
             String fileUrl = questionLibService.getFileUrl(saveUrl);
-            //TODO 修改该方法的参数--需要获取到QuestionMark参数进行分解Question
             try {
-                questionLibService.createQuestionByLibFile(fileUrl, null, libId);
-            } catch (FileNotFoundException e) {
-                Result res = Result.FAILD(null);
-                res.setMessage("服务器内部错误!");
-                return res;
+                questionLibService.createQuestionByLibFile(fileUrl, libId);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return Result.SUCCESS(null);
         } catch (NullPointerException e) {
