@@ -3,7 +3,7 @@ package com.jxust.qq.superquestionlib.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.exception.QuestionException;
-import com.jxust.qq.superquestionlib.po.Question;
+import com.jxust.qq.superquestionlib.dto.Question;
 import com.jxust.qq.superquestionlib.util.QuestionBreakUtil;
 import com.jxust.qq.superquestionlib.util.QuestionTypeEnum;
 import lombok.Data;
@@ -22,6 +22,8 @@ public class DefaultBreakQuestion {
     private String filepath;
     // 题库中是否包含答案
     private boolean hasAnswer = true;
+    @Getter
+    private boolean isComplete = true;
     private Pattern titleRegex = Pattern.compile("[一|二|三|四|五|六]、(选择题|填空题|解答题|判断题)");
     /**
      * TODO 选择题的正则表达式 : 暂时完成初始版本 -> 待多样本检测
@@ -40,6 +42,7 @@ public class DefaultBreakQuestion {
     // 匹配题干中的答案例如：(A)|(AB)|(ABC)等
     private Pattern choseAnswerRegexTwo = Pattern.compile("(?<=\\()[A-Z]+(?=\\))");
     private Pattern fillAnswerRegexOne = Pattern.compile("(?<=\\n答案[:|：|\\s|、]\\s{0,5}).*(?=(\\d+[.|、])|\\s$)");
+    private Pattern judgeAnswerRegex = Pattern.compile("(?<=\\n答案[:|：|\\s|、]\\s{0,5})[对|错]+");
 
     public DefaultBreakQuestion(String filepath) {
         this.filepath = filepath;
@@ -68,7 +71,7 @@ public class DefaultBreakQuestion {
                     questionList.addAll(breakTypeTwoQuestion(point));
                     break;
                 case TYPETHREE:
-
+                    questionList.addAll(breakTypeThreeQuestion(point));
                     break;
                 case TYPEFOUR:
 
@@ -76,6 +79,44 @@ public class DefaultBreakQuestion {
                 default:
                     break;
             }
+        });
+        return questionList;
+    }
+
+
+    /**
+     * 分解判断题的题型
+     * @param point
+     * @return
+     */
+    private List<? extends Question> breakTypeThreeQuestion(QuestionPoint point) {
+        List<String> contentList = new ArrayList<>();
+        List<Question> questionList = new ArrayList<>();
+        List<String> answerList = new ArrayList<>();
+        String contents = point.getText();
+        Matcher titleMatcher = questionTitleRegex.matcher(contents);
+        Matcher answerMatcher = judgeAnswerRegex.matcher(contents);
+        while (true) {
+            if (titleMatcher.find()) {
+                contentList.add(titleMatcher.group());
+            }else  if (answerMatcher.find()){
+                answerList.add(answerMatcher.group());
+            }else {
+                break;
+            }
+        }
+        if (contentList.size() != answerList.size() && hasAnswer) {
+            isComplete = false;
+        }
+        contentList.forEach(content -> {
+            Question judgeQuestion = new Question();
+            JSONObject data = new JSONObject();
+            data.put("title", content);
+            data.put("type", QuestionTypeEnum.TYPETHREE.getId());
+            data.put("answer", null);
+            judgeQuestion.setQuestionContent(data.toJSONString());
+            judgeQuestion.setQuestionTypeId(QuestionTypeEnum.TYPETHREE.getId());
+            questionList.add(judgeQuestion);
         });
         return questionList;
     }
@@ -110,18 +151,17 @@ public class DefaultBreakQuestion {
                 break;
             }
         }
-//        if (contents.size() != options.size()) {
-//            throw new QuestionException(QuestionParseExceptionEnum.CONTENT_NOT_MATCH_OPTIONS);
-//        }
-//        if (contents.size() != answers.size() && hasAnswer) {
-//            throw new QuestionException(QuestionParseExceptionEnum.CONTENT_NOT_MATCH_ANSWER);
-//        }
+        if (contents.size() != options.size()) {
+            isComplete = false;
+        }
+        if (contents.size() != answers.size() && hasAnswer) {
+            isComplete = false;
+        }
         // 将题干和选项结合进行题目的组装
         List<Map<String ,String>> mapList = getSingleOption(options);
         JSONArray jsonData = buildTypeOneQuestionContent(contents, mapList, answers);
         jsonData.forEach(it->{
             if (it instanceof JSONObject) {
-                System.out.println(((JSONObject) it).toJSONString());
                 Question question = new Question();
                 question.setQuestionContent(((JSONObject) it).toJSONString());
                 question.setQuestionTypeId(QuestionTypeEnum.TYPEONE.getId());
@@ -133,7 +173,7 @@ public class DefaultBreakQuestion {
 
 
     /**
-     * 分解出TypeOne类型即选择题的题目
+     * 分解出TypeTwo类型即填空题的题目
      * @param point 详见{@code QuestionPoint}
      * @return List
      */
@@ -153,6 +193,10 @@ public class DefaultBreakQuestion {
                 break;
             }
         }
+        if (titles.size() != answers.size() && hasAnswer) {
+            isComplete = false;
+        }
+        // todo 添加答案
         JSONArray questionArray = buildTypeTwoQuestion(titles, answers);
         List<Question> questionList = new ArrayList<>();
         questionArray.forEach(ob->{
@@ -179,7 +223,7 @@ public class DefaultBreakQuestion {
         while (titleIter.hasNext()) {
             JSONObject ob = new JSONObject();
             boolean answerFlag = answerIter.hasNext();
-            String title = answerIter.next();
+            String title = titleIter.next();
             ob.put("type", QuestionTypeEnum.TYPETWO.getId());
             ob.put("title", title);
             ob.put("answer", answerFlag?answerIter.next():"");

@@ -1,0 +1,29 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.UserQuestionHistoryMapper">
+
+    <insert id="insertQHistory" useGeneratedKeys="true">
+        insert into
+            sq_user_question_history(user_name, question_id,
+                                     question_lib_id, result,
+                                     submit_time, user_result)
+            value (#{history.username},#{history.questionId},#{history.questionLibId},
+            #{history.result},#{history.submitTime},#{history.userResult});
+    </insert>
+    <select id="selectHistoriesByUsernameAndLibId"
+            resultType="com.jxust.qq.superquestionlib.dto.UserQuestionHistory">
+        select
+               history.id,
+               history.question_lib_id as questionLibId,
+               history.user_name as username,
+               history.result,
+               history.user_result as userResult,
+               history.submit_time as submitTime,
+               history.question_id as questionId
+        from sq_user_question_history as history
+        where
+               history.question_lib_id = #{libId}
+          and  history.user_name = #{username}
+    </select>
+</mapper>

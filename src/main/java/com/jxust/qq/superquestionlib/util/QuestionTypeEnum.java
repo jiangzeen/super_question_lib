@@ -22,6 +22,7 @@ public enum QuestionTypeEnum {
     @Getter
     private String mark;
     QuestionTypeEnum(int id ,String mark) {
+        this.id = id;
         this.mark = mark;
     }
 }

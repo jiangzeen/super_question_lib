@@ -1,8 +1,10 @@
 package com.jxust.qq.superquestionlib.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dao.mapper.QuestionLibMapper;
-import com.jxust.qq.superquestionlib.po.Question;
-import com.jxust.qq.superquestionlib.po.QuestionLib;
+import com.jxust.qq.superquestionlib.dto.Question;
+import com.jxust.qq.superquestionlib.dto.QuestionLib;
+import com.jxust.qq.superquestionlib.vo.QuestionLibVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,8 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -39,6 +41,7 @@ public class QuestionLibService {
     public int createQuestionLibByUser (String username, String libName,
                                          int tagId, String libUrl, String mark, int hasPrivate) {
         long userId = userService.findUser(username).getUserId();
+        // todo 添加userQuestionLib
         QuestionLib lib = new QuestionLib();
         lib.setQuestionLibLevel(0);
         lib.setQuestionLibCreateTime(LocalDateTime.now());
@@ -46,8 +49,18 @@ public class QuestionLibService {
         lib.setQuestionLibUrl(libUrl);
         lib.setQuestionLibMark(mark);
         lib.setQuestionLibName(libName);
-        return libMapper.insertQuestionLib(lib);
+        libMapper.insertQuestionLib(lib);
+        return (int) lib.getQuestionLibId();
     }
+
+    /**
+     *
+     * @return
+     */
+    public QuestionLib findQuestionLibById(int id) {
+        return libMapper.selectQuestionLibById(id);
+    }
+
     /**
      * 保存题库文件到服务器
      * 题库文件必须以 .doc || .docx || .pdf 结尾
@@ -66,7 +79,7 @@ public class QuestionLibService {
             throw new IllegalArgumentException();
         }
         String[] suffix = originname.split("//.");
-        String saveName = username + "-lib-" + UUID.randomUUID() + "." + suffix[suffix.length - 1];
+        String saveName = username + "-lib-" + produceTime() + "." + suffix[suffix.length - 1];
         try {
             InputStream in = questionLibFile.getInputStream();
             FileOutputStream out = new FileOutputStream(FILE_DIR + saveName);
@@ -85,12 +98,12 @@ public class QuestionLibService {
     }
 
 
-    public void createQuestionByLibFile(String filename, int libId) throws IOException {
+    public JSONObject createQuestionByLibFile(String filename, int libId) throws IOException {
         DefaultBreakQuestion bqUtil = new DefaultBreakQuestion(filename);
         List<Question> cqList = bqUtil.breakQuestion();
         assert cqList != null;
+        QuestionLibVO libVO = new QuestionLibVO();
         cqList.forEach(cq->{
-            // TODO 添加题目
             cq.setKeyword("");
             cq.setRightTime(0);
             cq.setRightTime(0);
@@ -98,8 +111,27 @@ public class QuestionLibService {
             cq.setQuestionLevel(0);
             cq.setCreateTime(LocalDateTime.now());
             cq.setLastModify(LocalDateTime.now());
-            questionService.insert(cq);
+            int qId = questionService.insert(cq);
         });
+        JSONObject data = new JSONObject();
+        data.put("isComplete", bqUtil.isComplete());
+        data.put("data", cqList);
+        return data;
     }
 
+    private String produceTime() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+    }
+
+
+    public List<QuestionLibVO> findPublicQuestionLibVOSPages(int page, int limit, Integer typeId) {
+        assert page > 0;
+        int total = (page - 1) * limit;
+        return libMapper.selectPublicLibByPage(total, page, typeId);
+    }
+
+    public int findPublicQuestionLibSize() {
+
+        return 0;
+    }
 }

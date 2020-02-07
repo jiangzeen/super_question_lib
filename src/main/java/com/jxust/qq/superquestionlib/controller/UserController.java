@@ -1,8 +1,8 @@
 package com.jxust.qq.superquestionlib.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.jxust.qq.superquestionlib.po.Result;
-import com.jxust.qq.superquestionlib.po.User;
+import com.jxust.qq.superquestionlib.dto.Result;
+import com.jxust.qq.superquestionlib.dto.User;
 import com.jxust.qq.superquestionlib.service.MailService;
 import com.jxust.qq.superquestionlib.service.RedisService;
 import com.jxust.qq.superquestionlib.service.UserService;

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/super_question_lib?useSSL=false"
+    url: "jdbc:mysql://localhost:3306/super_question_lib?useSSL=false&serverTimezone=Hongkong"
     username: "root"
     password: "jiang.141201"
   mail:

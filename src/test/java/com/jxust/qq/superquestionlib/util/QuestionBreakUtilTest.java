@@ -1,16 +1,12 @@
 package com.jxust.qq.superquestionlib.util;
 
 import com.jxust.qq.superquestionlib.exception.QuestionException;
-import com.jxust.qq.superquestionlib.exception.QuestionParseExceptionEnum;
 import com.jxust.qq.superquestionlib.service.DefaultBreakQuestion;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class QuestionBreakUtilTest {
 
@@ -33,17 +29,8 @@ public class QuestionBreakUtilTest {
     }
 
     @Test
-    public void testList() {
-        List<StringBuffer> array = new ArrayList<>();
-        array.add(new StringBuffer("132"));
-        array.add(new StringBuffer("456"));
-        array.forEach(it->{
-            System.out.println(it.toString());
-        });
-        StringBuffer a = array.get(0);
-        a.append("789");
-        array.forEach(it->{
-            System.out.println(it.toString());
-        });
+    public void test_time() {
+        LocalDateTime time = LocalDateTime.now();
+        System.out.println(time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
     }
 }

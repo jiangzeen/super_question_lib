@@ -1,4 +1,4 @@
-package com.jxust.qq.superquestionlib.po;
+package com.jxust.qq.superquestionlib.dto;
 
 
 import lombok.Data;

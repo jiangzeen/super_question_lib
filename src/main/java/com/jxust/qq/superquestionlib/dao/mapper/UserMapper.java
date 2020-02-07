@@ -1,6 +1,6 @@
 package com.jxust.qq.superquestionlib.dao.mapper;
 
-import com.jxust.qq.superquestionlib.po.User;
+import com.jxust.qq.superquestionlib.dto.User;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

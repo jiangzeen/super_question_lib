@@ -26,6 +26,5 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, value);
     }
 
-
 }
 

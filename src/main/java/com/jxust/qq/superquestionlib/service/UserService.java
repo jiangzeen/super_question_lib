@@ -1,7 +1,7 @@
 package com.jxust.qq.superquestionlib.service;
 
 import com.jxust.qq.superquestionlib.dao.mapper.UserMapper;
-import com.jxust.qq.superquestionlib.po.User;
+import com.jxust.qq.superquestionlib.dto.User;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.crypto.hash.SimpleHash;

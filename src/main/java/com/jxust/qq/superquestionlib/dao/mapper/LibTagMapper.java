@@ -1,6 +1,6 @@
 package com.jxust.qq.superquestionlib.dao.mapper;
 
-import com.jxust.qq.superquestionlib.po.LibTag;
+import com.jxust.qq.superquestionlib.dto.LibTag;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

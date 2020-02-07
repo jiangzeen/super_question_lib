@@ -18,7 +18,7 @@
     <select id="selectParentTags" resultMap="tag">
         select * from sq_lib_tag where parent_tag_id=0
     </select>
-    <resultMap id="tag" type="com.jxust.qq.superquestionlib.po.LibTag">
+    <resultMap id="tag" type="com.jxust.qq.superquestionlib.dto.LibTag">
         <id property="tagId" column="lib_tag_id"/>
         <result property="tagName" column="lib_tag_name" />
         <result property="parentTagId" column="parent_tag_id"/>

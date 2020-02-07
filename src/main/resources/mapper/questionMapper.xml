@@ -6,14 +6,40 @@
         question_id, question_content, question_level, question_lib_id, question_type_id,
         right_time,wrong_time, create_time,last_modify, keyword
     </sql>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="questionId" parameterType="com.jxust.qq.superquestionlib.po.Question">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="questionId" parameterType="com.jxust.qq.superquestionlib.dto.Question">
         insert into sq_question(question_content, question_level, question_lib_id, question_type_id,
                                 right_time, wrong_time, create_time, last_modify, keyword)
         value (#{question.questionContent}, #{question.questionLevel}, #{question.questionLibId}, #{question.questionTypeId},
                #{question.rightTime}, #{question.wrongTime}, #{question.createTime}, #{question.lastModify}, #{question.keyword})
     </insert>
+    <update id="updateContentById" parameterType="java.lang.Integer">
+        update sq_question set question_content = #{content} where question_id = #{id}
+    </update>
+    <select id="selectUserInfoByQuestionId" resultType="com.jxust.qq.superquestionlib.vo.QuestionLibVO">
+        select
+               lib.question_lib_id as libId,
+               (select
+                       user_name
+               from sq_user_question_lib user_lib
+               where
+                   lib.question_lib_id = user_lib.question_lib_id) as username
+        from sq_question quest, sq_question_lib lib
+        where
+              quest.question_id = #{question_id}
+          and quest.question_lib_id = lib.question_lib_id
+    </select>
+    <select id="selectQuestionById" resultType="com.jxust.qq.superquestionlib.vo.QuestionVO">
+        select
+               question_id as questionId,
+               question_content as content,
+               question_lib_id as libId
+        from sq_question
+        where
+                sq_question.question_id = #{questionId}
+    </select>
 
-    <resultMap id="base_mapper" type="com.jxust.qq.superquestionlib.po.Question">
+
+    <resultMap id="base_mapper" type="com.jxust.qq.superquestionlib.dto.Question">
         <id  property="questionId" column="question_id"/>
         <result property="questionContent" column="question_content"/>
         <result property="questionLevel" column="question_level"/>

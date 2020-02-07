@@ -1,7 +1,6 @@
 package com.jxust.qq.superquestionlib.controller.filter;
 
 import com.alibaba.fastjson.JSONObject;
-import com.jxust.qq.superquestionlib.po.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;

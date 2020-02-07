@@ -3,7 +3,7 @@ package com.jxust.qq.superquestionlib.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dao.mapper.LibTagMapper;
-import com.jxust.qq.superquestionlib.po.LibTag;
+import com.jxust.qq.superquestionlib.dto.LibTag;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

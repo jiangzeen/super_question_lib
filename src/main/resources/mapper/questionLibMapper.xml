@@ -13,4 +13,33 @@
         value (#{lib.questionLibLevel}, #{lib.questionLibName},
         #{lib.questionLibCreateTime}, #{lib.questionLibTagId}, #{lib.questionLibMark}, #{lib.questionLibUrl}, #{lib.hasPrivate});
     </insert>
+    <select id="selectQuestionLibById" resultType="com.jxust.qq.superquestionlib.dto.QuestionLib">
+        select <include refid="base_column"/>
+        from sq_question_lib where sq_question_lib.question_lib_id = #{id}
+    </select>
+    <select id="selectPublicQuestionLib" resultType="java.lang.Integer">
+        select * from sq_question_lib order by question_lib_id
+    </select>
+    <select id="selectPublicLibByPage" resultMap="questionLibVo">
+        select
+               sq_lib.question_lib_id,
+               sq_lib.question_lib_name,
+               sq_user_lib.user_name,
+               sq_tag.lib_tag_name
+        from sq_question_lib sq_lib
+        left join sq_user_question_lib sq_user_lib on sq_user_lib.question_lib_id = sq_lib.question_lib_id
+        left join sq_lib_tag sq_tag on sq_lib.question_lib_tag_id = sq_tag.lib_tag_id
+        where
+              sq_lib.question_lib_private = 0 and sq_lib.question_lib_id > #{total}
+              <if test="typeId != null">
+                 and sq_lib.question_lib_tag_id = #{typeId}
+              </if>
+        order by sq_lib.question_lib_id limit #{limit}
+    </select>
+    <resultMap id="questionLibVo" type="com.jxust.qq.superquestionlib.vo.QuestionLibVO">
+        <result column="question_lib_id" property="libId"/>
+        <result column="question_lib_name" property="libName"/>
+        <result column="user_name" property="username"/>
+        <result column="lib_tag_name" property="typeName"/>
+    </resultMap>
 </mapper>
