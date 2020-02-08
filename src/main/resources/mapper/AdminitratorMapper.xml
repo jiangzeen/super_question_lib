@@ -1,0 +1,41 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.AdminitratorMapper">
+
+    <sql id="base_column">
+        admin_id, admin_name, admin_password,last_loginTime
+    </sql>
+    <select id="findAdminitrators" resultMap="admin">
+        select <include refid="base_column"/>
+        from admin;
+    </select>
+    <select id="selectAdminByAdminName" resultMap="admin">
+        select <include refid="base_column"/>
+        from admin where admin_name=#{adminName};
+    </select>
+    <insert id="insertAdmin" useGeneratedKeys="true" parameterType="com.jxust.qq.superquestionlib.dto.admin.Adminitrator">
+        insert into admin(admin_name, admin_password, last_loginTime)
+                            value(#{adminitrator.adminName}, #{adminitrator.adminPassword}, #{adminitrator.lastLoginTime})
+    </insert>
+    <update id="updatePassword">
+        update admin set admin_password=#{password} where admin_name=#{adminName}
+    </update>
+    <update id="updateLoginTime">
+        update admin set last_loginTime=#{time} where admin_name=#{adminName}
+    </update>
+    <update id="updateAdminitrator">
+        update admin set admin_password=#{.userPassword},admin_name=#{Adminitrator.adminPassword},
+                            last_loginTime=#{Adminitrator.lastLoginTime}
+        where user_name=#{user.userName}
+    </update>
+    <delete id="deleteByAdminName">
+        delete from admin where admin_name=#{adminName}
+    </delete>
+    <resultMap id="admin" type="com.jxust.qq.superquestionlib.dto.admin.Adminitrator">
+        <id property="adminId" column="admin_id"/>
+        <result property="adminName" column="admin_name" />
+        <result property="adminPassword" column="admin_password"/>
+        <result property="lastLoginTime" column="last_loginTime"/>
+    </resultMap>
+</mapper>
