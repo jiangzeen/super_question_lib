@@ -1,12 +1,15 @@
 package com.jxust.qq.superquestionlib.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dto.QuestionNote;
 import com.jxust.qq.superquestionlib.dto.Result;
-import com.jxust.qq.superquestionlib.dto.UserQuestionHistory;
+import com.jxust.qq.superquestionlib.service.QuestionNoteService;
 import com.jxust.qq.superquestionlib.service.QuestionService;
 import com.jxust.qq.superquestionlib.service.UserQuestionHistoryService;
 import com.jxust.qq.superquestionlib.service.UserQuestionLibService;
 import com.jxust.qq.superquestionlib.vo.QuestionLibVO;
+import com.jxust.qq.superquestionlib.vo.QuestionNoteVO;
 import com.jxust.qq.superquestionlib.vo.UserQuestionHistoryVO;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +24,15 @@ public class UserQuestionController {
     private final UserQuestionLibService userQuestionLibService;
     private final QuestionService questionService;
     private final UserQuestionHistoryService userQuestionHistoryService;
+    private final QuestionNoteService questionNoteService;
 
-    public UserQuestionController(UserQuestionLibService userQuestionLibService, QuestionService questionService, UserQuestionHistoryService userQuestionHistoryService) {
+    public UserQuestionController(UserQuestionLibService userQuestionLibService,
+                                  QuestionService questionService,
+                                  UserQuestionHistoryService userQuestionHistoryService, QuestionNoteService questionNoteService) {
         this.userQuestionLibService = userQuestionLibService;
         this.questionService = questionService;
         this.userQuestionHistoryService = userQuestionHistoryService;
+        this.questionNoteService = questionNoteService;
     }
 
 
@@ -97,5 +104,52 @@ public class UserQuestionController {
         List<UserQuestionHistoryVO> data = userQuestionHistoryService.
                 findHistoriesByLibIdAndUsername(username, lId);
         return Result.SUCCESS(data);
+    }
+
+    @PostMapping("/user/user_question/add_note")
+    public Result addQuestionNote(@RequestBody QuestionNote note) {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        note.setUsername(username);
+        int id = questionNoteService.addQuestionNote(note);
+        JSONObject data = new JSONObject();
+        data.put("noteId", id);
+        return Result.SUCCESS(data);
+    }
+
+    /**
+     * 获取一道题目的笔记, 包括自己的和别人的
+     * @param questionId id
+     * @return List
+     */
+    @GetMapping("/user/user_question/notes")
+    public Result getQuestionNotes(@RequestParam("questionId") int questionId) {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        List<QuestionNoteVO> voList = questionNoteService.findNotesByQuestionId(questionId);
+        List<QuestionNoteVO> otherNote = questionNoteService.findNoteByOtherUsername(username, questionId);
+        JSONObject data = new JSONObject();
+        data.put("selfNote", voList);
+        data.put("otherNote", otherNote);
+        return Result.SUCCESS(data);
+    }
+
+    /**
+     * 根据分类获取笔记
+     * @return 返回已经分好类的note
+     */
+    @GetMapping("/user/user_question/notes/by_type")
+    public Result getTypeNotes() {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        return Result.SUCCESS(questionNoteService.findAllNoteByType(username));
+    }
+
+
+    @PostMapping("/user/user_question/note_update")
+    public Result modifyNote(@RequestBody QuestionNote note) {
+        try {
+            questionNoteService.updateNoteById(note);
+            return Result.SUCCESS("更新笔记成功");
+        }catch (IllegalArgumentException e) {
+            return Result.FAILD("该noteId不存在,请检查后重试");
+        }
     }
 }

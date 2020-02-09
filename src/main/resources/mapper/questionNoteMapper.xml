@@ -1,0 +1,76 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.QuestionNoteMapper">
+
+    <insert id="insertNote" useGeneratedKeys="true">
+        insert into
+                sq_question_note(user_name, question_id, note_content, create_time)
+                value (#{note.username}, #{note.questionId}, #{note.content}, #{note.createTime})
+    </insert>
+    <update id="updateById">
+        update sq_question_note
+        set
+            note_content = #{content},
+            create_time = #{time}
+        where
+            note_id = #{id}
+    </update>
+
+    <select id="selectNoteByQuestionId" resultType="com.jxust.qq.superquestionlib.vo.QuestionNoteVO">
+        select
+               note.user_name as username,
+               sq_user.user_nick as nickname,
+               note.note_content as content,
+               note.question_id as questionId,
+               date_format(note.create_time, '%Y-%m-%d %H:%i:%s') as createTime
+        from sq_question_note note
+        left join sq_user on note.user_name = sq_user.user_name
+        where note.question_id = #{id}
+    </select>
+
+    <select id="selectNoteByOtherUsernameAndId" resultType="com.jxust.qq.superquestionlib.vo.QuestionNoteVO">
+        select
+            note.user_name as username,
+            su.user_nick as nickname,
+            note.note_content as content,
+            note.question_id as questionId,
+            date_format(note.create_time, '%Y-%m-%d %H:%i:%s') as createTime
+        from sq_question_note note
+        left join sq_user su on note.user_name = su.user_name
+        where note.question_id = #{id} and note.user_name != #{username}
+    </select>
+    <select id="selectNotesByType" resultType="hashmap">
+        select
+                note.user_name as username,
+                note.question_id as questionId,
+                note.note_content as noteContent,
+                sq.question_lib_id as libId,
+                suql.private_name as privateName,
+                slg.lib_tag_id as tagId,
+                slg.lib_tag_name as tagName
+        from sq_question_note note
+                 left join sq_question sq
+                           on note.question_id = sq.question_id
+                 left join sq_user_question_lib suql
+                           on note.user_name = suql.user_name
+                 left join sq_question_lib s
+                           on suql.question_lib_id = s.question_lib_id
+                 left join sq_lib_tag slg
+                           on s.question_lib_tag_id = slg.lib_tag_id
+        where note.user_name = #{username}
+        group by note.note_id;
+    </select>
+
+    <select id="selectNoteById" resultType="com.jxust.qq.superquestionlib.dto.QuestionNote">
+        select
+             note.note_id as noteId,
+             note.note_content as content,
+             note.user_name as username,
+             note.question_id as questionId,
+             note.create_time as createTime
+        from sq_question_note note
+        where
+            note.note_id = #{id}
+    </select>
+</mapper>
