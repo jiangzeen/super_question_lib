@@ -28,12 +28,23 @@
                             user_sex=#{user.userSex}
         where user_name=#{user.userName}
     </update>
-    <update id="updateAvatarAndMajor">
-        update sq_user set user_avatar=#{avatar} where user_name=#{username}
+    <update id="updateUserInfo">
+        update sq_user
+        set user_nick = #{nickname},
+            user_sex = #{sex},
+            user_school_id = #{schoolInfoId}
+        where user_name=#{username}
+    </update>
+    <update id="updateUserAvatar">
+        update sq_user
+        set user_avatar = #{avatarUrl}
+        where
+            user_name = #{username}
     </update>
     <select id="findAllUsers" resultType="com.jxust.qq.superquestionlib.dto.User">
         select * from sq_user
     </select>
+
     <select id="selectUserByUserName" resultType="com.jxust.qq.superquestionlib.dto.User">
         select
             <include refid="select_base_all_info_column"/>
@@ -47,4 +58,20 @@
     <select id="selectPasswordByUsername" resultType="java.lang.String">
         select user_password from sq_user where user_name=#{username}
     </select>
+
+    <select id="selectSchoolById" resultType="com.jxust.qq.superquestionlib.dto.SchoolInfo">
+        select
+            school_id as schoolId,
+            school_name as schoolName
+        from sq_school_info
+        where
+            school_id = #{schoolId}
+    </select>
+    <select id="selectSchoolInfos" resultType="com.jxust.qq.superquestionlib.dto.SchoolInfo">
+        select
+            school_id as schoolId,
+            school_name as schoolName
+        from sq_school_info
+    </select>
+
 </mapper>    

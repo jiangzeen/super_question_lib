@@ -1,8 +1,10 @@
 package com.jxust.qq.superquestionlib.service;
 
 import com.jxust.qq.superquestionlib.dao.mapper.UserMapper;
+import com.jxust.qq.superquestionlib.dto.SchoolInfo;
 import com.jxust.qq.superquestionlib.dto.User;
 
+import com.jxust.qq.superquestionlib.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.util.ByteSource;
@@ -12,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -22,6 +25,7 @@ public class UserService {
 
     private final UserMapper mapper;
     private final static String avatar_dir_path = "/home/jiangzeen/project_log/";
+    public final static String default_avatar_url = "default.jpeg";
 
     public UserService(UserMapper mapper) {
         this.mapper = mapper;
@@ -41,7 +45,7 @@ public class UserService {
         user.setUserPassword(encrypt(username, password));
         user.setUserCreateTime(LocalDateTime.now());
         user.setUserLastLoginTime(LocalDateTime.now());
-        user.setUserAvatar("");
+        user.setUserAvatar(default_avatar_url);
         user.setUserSex(0);
         user.setUserSchoolId(0);
         return mapper.insertUser(user);
@@ -72,11 +76,8 @@ public class UserService {
         mapper.updateLoginTime(username, time);
     }
 
-    public void completeInfo(String username, String avatarUrl, String majorId) throws IllegalArgumentException {
-        if (findUser(username) == null) {
-            throw new IllegalArgumentException();
-        }
-        mapper.updateAvatarAndMajor(avatarUrl, Integer.valueOf(majorId), username);
+    public void completeInfo(String username, String nickname, int sex, int schoolInfoId) throws IllegalArgumentException {
+        mapper.updateUserInfo(username, nickname, sex, schoolInfoId);
     }
 
     public String processAvatar(String username, MultipartFile avatar) {
@@ -86,8 +87,8 @@ public class UserService {
             return null;
         }
         log.info("获得上传文件{}", originName);
-        int random = new Random().nextInt(1000000);
-        String filename = username + "_" + random + ".";
+        String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String filename = username + "_avatar_" + time + ".";
         Pattern imgReg = Pattern.compile(".*(.jpg)$|.*(.png)$|.*(.jpeg)$");
         if (!imgReg.matcher(originName).find()) {
             log.info("上传图片文件不符合特定格式[jpg,png,jpeg]");
@@ -108,5 +109,25 @@ public class UserService {
             return null;
         }
         return filename;
+    }
+
+    public void modifyUserAvatar(String avatarUrl, String username) {
+        mapper.updateUserAvatar(avatarUrl, username);
+    }
+
+    public UserVO findUserByUsername(String username) {
+        User user =  mapper.selectUserByUserName(username);
+        UserVO vo = new UserVO(username, user.getUserNick());
+        vo.setSex(user.getUserSex());
+        vo.setAvatar(user.getUserAvatar());
+        SchoolInfo schoolInfo = mapper.selectSchoolById(user.getUserSchoolId());
+        if (schoolInfo == null) {
+            vo.setSchoolInfo(null);
+        }else {
+            vo.setSchoolInfo(schoolInfo.getSchoolName());
+        }
+        vo.setLastLoginTime(user.getUserLastLoginTime().
+                format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        return vo;
     }
 }

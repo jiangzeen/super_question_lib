@@ -6,6 +6,7 @@ import com.jxust.qq.superquestionlib.dto.User;
 import com.jxust.qq.superquestionlib.service.MailService;
 import com.jxust.qq.superquestionlib.service.RedisService;
 import com.jxust.qq.superquestionlib.service.UserService;
+import com.jxust.qq.superquestionlib.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -29,20 +30,6 @@ public class UserController {
         this.redisService = redisService;
         this.mailService = mailService;
     }
-    // TODO 待会删掉
-    @PostMapping("/toRegister")
-    public Result getRegisterCode(@RequestParam("username") String username,
-                                  @RequestParam("password") String password,
-                                  @RequestParam("nickname") String nickname) {
-            int status = userService.createUser(username, password, nickname);
-            if (status < 0) {
-                return Result.SERVERERROR();
-            }
-            JSONObject data = new JSONObject();
-            data.put("username", username);
-            return Result.SUCCESS("注册成功", data);
-    }
-
 
     @PostMapping("/register")
     public Result getRegisterCode(@RequestParam("username") String username,
@@ -57,6 +44,7 @@ public class UserController {
             }
             JSONObject data = new JSONObject();
             data.put("username", username);
+            data.put("defaultAvatar", UserService.default_avatar_url);
             return Result.SUCCESS("注册成功", data);
         }
         Result result = new Result();
@@ -84,6 +72,7 @@ public class UserController {
         }
         int code = mailService.senderSimpleMail(username);
         redisService.setKeyValue(username, String.valueOf(code));
+        redisService.setKeyExpire(username, 300L);
         return Result.SUCCESS(null);
     }
 
@@ -109,6 +98,7 @@ public class UserController {
             result = Result.FAILD(username);
             return result;
         }
+        userService.modifyLoginTime(username);
         result = Result.SUCCESS(data);
         return result;
     }
@@ -129,29 +119,32 @@ public class UserController {
         return Result.SUCCESS(data);
     }
 
+    @GetMapping("/user/info/{username}")
+    public Result getUserInfo(@PathVariable String username) {
+        UserVO vo = userService.findUserByUsername(username);
+        if (vo != null) {
+            return Result.SUCCESS(vo);
+        }else {
+            return Result.FAILD("用户不存在,检查用户名后重试");
+        }
+    }
 
-    @PostMapping("/user/complete_info/{username}")
-    public Result completeInfo(@RequestParam("majorId") String majorId,@PathVariable("username")String username,
-                               @RequestParam(value = "avatar", required = false) MultipartFile avatarFile) {
-        User user = userService.findUser(username);
-        JSONObject data = new JSONObject();
-        data.put("username", username);
-        if (user == null) {
-           Result res =  Result.FAILD(data);
-           res.setMessage("失败,用户不存在,请检查username");
-           return res;
-        }
-        // 保存图片
-        String imgurl = userService.processAvatar(username, avatarFile);
-        if (imgurl == null) {
-            Result res =  Result.FAILD(data);
-            res.setMessage("失败,用户头像文件格式错误");
-            return res;
-        }
-        log.info("上传文件[{}]成功", imgurl);
-        user.setUserAvatar(imgurl);
-        userService.completeInfo(username, imgurl, majorId);
-        return Result.SUCCESS(data);
+
+    @PostMapping("/user/complete_info")
+    public Result completeInfo(@RequestBody UserVO userVO) {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        userVO.setUsername(username);
+        userService.completeInfo(username, userVO.getNickname(),userVO.getSex(),
+                Integer.parseInt(userVO.getSchoolInfo()));
+        return Result.SUCCESS(null);
+    }
+
+    @PostMapping("/user/upload/avatar")
+    public Result completeAvatar(@RequestParam("avatar") MultipartFile file) {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        String avatarUrl = userService.processAvatar(username, file);
+        userService.modifyUserAvatar(avatarUrl, username);
+        return Result.SUCCESS(avatarUrl);
     }
 
     @PostMapping("/user/logout")

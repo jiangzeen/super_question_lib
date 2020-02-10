@@ -1,6 +1,8 @@
 package com.jxust.qq.superquestionlib.dao.mapper;
 
+import com.jxust.qq.superquestionlib.dto.SchoolInfo;
 import com.jxust.qq.superquestionlib.dto.User;
+import com.jxust.qq.superquestionlib.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -24,7 +26,13 @@ public interface UserMapper {
 
     void updateUser(User user);
 
-    void updateAvatarAndMajor(String avatar, int majorId, String username);
+    void updateUserInfo(String username, String nickname, int sex, int schoolInfoId);
 
     void updateLoginTime(String username, LocalDateTime time);
+
+    void updateUserAvatar(String avatarUrl, String username);
+
+    SchoolInfo selectSchoolById(int schoolId);
+
+    List<SchoolInfo> selectSchoolInfos();
 }
