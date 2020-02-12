@@ -11,7 +11,7 @@ spring:
     include: redis,elasticsearch
 mybatis:
   type-aliases-package: com.jxust.qq.superquestionlib.dao.mapper, com.jxust.qq.superquestionlib.dto
-  mapper-locations: classpath:mapper/*.xml
+  mapper-locations: classpath:mapper/*.xml,mapper/admin/*.xml
   configuration:
     map-underscore-to-camel-case: true
 logging:
