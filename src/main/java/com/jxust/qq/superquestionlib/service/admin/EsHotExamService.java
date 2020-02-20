@@ -26,7 +26,7 @@ public class EsHotExamService {
     @Autowired
     EsHotExamRepository hotExam;
     private final HotExamMapper examMapper;
-    public static int pagesum;
+    public static long pagesum;
 
     public EsHotExamService(HotExamMapper examMapper) {
         this.examMapper = examMapper;
@@ -38,7 +38,7 @@ public class EsHotExamService {
         MultiMatchQueryBuilder matchQuery= QueryBuilders.multiMatchQuery(queryString,"examName","examTagIds");
         PageRequest pageRequest=PageRequest.of(pagenum-1,pagesize);
         Iterable<EsHotExam> hotExams=hotExam.search(matchQuery,pageRequest);
-        pagesum=hotExam.search(matchQuery,pageRequest).getTotalPages();
+        pagesum=hotExam.search(matchQuery,pageRequest).getTotalElements();
         List<EsHotExam> hotExamList=new ArrayList<>();
         for (EsHotExam exam : hotExams) {
             hotExamList.add(exam);
@@ -58,8 +58,7 @@ public class EsHotExamService {
         return Exam;
     }
     //true 降序 false 升序
-    public List<EsHotExam> boolHotExam(String queryStrings, boolean dir, int pagenum, int pagesize,int toStartBegin
-            , int toStartEnd,Date startTimeBegin,Date startTimeEnd)
+    public List<EsHotExam> boolHotExam(String queryStrings, boolean dir, int pagenum, int pagesize,Date startTimeBegin,Date startTimeEnd)
     {
         BoolQueryBuilder boolQuery=QueryBuilders.boolQuery();
         //按字符查询
@@ -67,9 +66,7 @@ public class EsHotExamService {
         MultiMatchQueryBuilder matchQuery=QueryBuilders.multiMatchQuery(queryStrings,"examName","tagsId");
         boolQuery.must(matchQuery);
         //过滤条件
-        RangeQueryBuilder toStartQuery=QueryBuilders.rangeQuery("examToStartTime").from(toStartBegin).to(toStartEnd);
         RangeQueryBuilder startTimeQuery=QueryBuilders.rangeQuery("examStartTime").from(startTimeBegin.getTime()-3600*8*1000).to(startTimeEnd.getTime()-3600*8*1000);
-        boolQuery.filter(toStartQuery);
         boolQuery.filter(startTimeQuery);
         //分页
         Sort sort;
@@ -79,7 +76,7 @@ public class EsHotExamService {
         else
             sort=Sort.by(Sort.Direction.ASC,"examTimeLevel");
         PageRequest pageRequest=PageRequest.of(pagenum-1,pagesize,sort);
-        pagesum=hotExam.search(boolQuery,pageRequest).getTotalPages();
+        pagesum=hotExam.search(boolQuery,pageRequest).getTotalElements();
         Iterable<EsHotExam> iterables=hotExam.search(boolQuery,pageRequest);
         Iterator<EsHotExam> iterator=iterables.iterator();
         ArrayList<EsHotExam> hotExams=new ArrayList<>();
@@ -102,6 +99,7 @@ public class EsHotExamService {
     //改
    public int updateExamByName(EsHotExam esHotExam)
    {
+       esHotExam.setId(examMapper.selectExamByExamName(esHotExam.getExamName()).getId());
        if(hotExam.existsById(esHotExam.getId()))
            hotExam.save(esHotExam);
        return examMapper.updateExamByName(esHotExam);
@@ -119,7 +117,7 @@ public class EsHotExamService {
     {
         Sort sort=Sort.by(Sort.Direction.ASC,"id");
         PageRequest pageRequest=PageRequest.of(pagenum-1,pagesize,sort);
-        pagesum= hotExam.findAll(pageRequest).getTotalPages();
+        pagesum= hotExam.findAll(pageRequest).getTotalElements();
         List<EsHotExam> examList=new ArrayList<>();
         for (EsHotExam hotExam:hotExam.findAll(pageRequest)) {
             examList.add(hotExam);
@@ -132,7 +130,6 @@ public class EsHotExamService {
        int status=examMapper.insertExam(esHotExam);
        if(status<0) {return status;}
        else {
-           System.out.println(esHotExam.getExamName());
            hotExam.save(examMapper.selectExamByExamName(esHotExam.getExamName()));
            return status;
        }

@@ -11,17 +11,17 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-@Document(indexName = "sq_hot_exam",type = "hot_exam",createIndex = false,refreshInterval = "-1")
+@Document(indexName = "sq_hot_exam",type = "hot_exam",createIndex = true,refreshInterval = "-1")
 public class EsHotExam  implements Serializable{
     @Id
     private int id;
     @Field(type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     private String examName;
-    private int examTimeLevel;
-    @Field( type = FieldType.Date)
+    @Field(type = FieldType.Date)
     private Date examStartTime;
     private int examToStartTime;
     // 根据分隔符,分割出多个id
+    @Field(type = FieldType.Text)
     private String tagIds;
     public EsHotExam()
     {

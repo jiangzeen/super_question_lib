@@ -11,8 +11,6 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.WebRequest;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -56,13 +54,11 @@ public class EsHotExamController {
     }
     @PostMapping("admin/hotExam/conditionQuery")
     public Result conditionQuery(@Param("queryString") String queryString, @Param("dir") boolean dir,
-                                 @Param("pagenum") int pagenum,@Param("pagesize") int pagesize
-            ,@Param("toStartBegin") int toStartBegin
-            ,@Param("toStartEnd") int toStartEnd, @Param("startTimeBegin") String startTimeBegin
+                                 @Param("pagenum") int pagenum,@Param("pagesize") int pagesize,@Param("startTimeBegin") String startTimeBegin
             ,@Param("startTimeEnd") String startTimeEnd)
     {
             List<EsHotExam> esHotExamList=esHotExamService.boolHotExam(queryString,dir,pagenum,
-                    pagesize,toStartBegin,toStartEnd,DateFormat.DateFormatParse(startTimeBegin),DateFormat.DateFormatParse(startTimeEnd));
+                    pagesize,DateFormat.DateFormatParse(startTimeBegin),DateFormat.DateFormatParse(startTimeEnd));
             JSONObject data=new JSONObject();
             data.put("esHotExams",esHotExamList);
             data.put("pagesum",EsHotExamService.pagesum);
@@ -78,13 +74,13 @@ public class EsHotExamController {
 
     //修改
     @PostMapping("admin/hotExam/updateById")
-    public Result updateById(@Param("examName")String examName, @Param("examTimeLevel")
-            int examTimeLevel, @Param("examStartTime")String examStartTime,
+    public Result updateById(@Param("id")int id,@Param("examName")String examName,
+             @Param("examStartTime")String examStartTime,
                              @Param("examToStartTime")int examToStartTime, @Param("tagIds")String tagIds)
     {
         EsHotExam esHotExam=new EsHotExam();
+        esHotExam.setId(id);
         esHotExam.setExamName(examName);
-        esHotExam.setExamTimeLevel(examTimeLevel);
         esHotExam.setExamStartTime(DateFormat.DateFormatParse(examStartTime));
         esHotExam.setExamToStartTime(examToStartTime);
         esHotExam.setTagIds(tagIds);
@@ -98,13 +94,11 @@ public class EsHotExamController {
         }
     }
     @PostMapping("admin/hotExam/updateByName")
-    public Result updateByName(@Param("examName")String examName, @Param("examTimeLevel")
-            int examTimeLevel, @Param("examStartTime")String examStartTime,
+    public Result updateByName(@Param("examName")String examName, @Param("examStartTime")String examStartTime,
                              @Param("examToStartTime")int examToStartTime, @Param("tagIds")String tagIds)
     {
         EsHotExam esHotExam=new EsHotExam();
         esHotExam.setExamName(examName);
-        esHotExam.setExamTimeLevel(examTimeLevel);
         esHotExam.setExamStartTime(DateFormat.DateFormatParse(examStartTime));
         esHotExam.setExamToStartTime(examToStartTime);
         esHotExam.setTagIds(tagIds);
@@ -119,13 +113,11 @@ public class EsHotExamController {
     }
     //增加
     @PostMapping("admin/hotExam/create")
-    public Result findAll(@Param("examName")String examName, @Param("examTimeLevel")
-            int examTimeLevel, @Param("examStartTime")Date examStartTime,
+    public Result findAll(@Param("examName")String examName, @Param("examStartTime")Date examStartTime,
                           @Param("examToStartTime")int examToStartTime, @Param("tagIds")String tagIds)
     {
            EsHotExam esHotExam=new EsHotExam();
            esHotExam.setExamName(examName);
-           esHotExam.setExamTimeLevel(examTimeLevel);
            esHotExam.setExamStartTime(examStartTime);
            esHotExam.setExamToStartTime(examToStartTime);
            esHotExam.setTagIds(tagIds);
@@ -171,7 +163,7 @@ public class EsHotExamController {
         else return Result.SUCCESS(data);
     }
     @InitBinder
-    public void initBinder(WebDataBinder binder, WebRequest request) {
+    public void initBinder(WebDataBinder binder) {
         //转换日期 注意这里的转化要和传进来的字符串的格式一直 如2015-9-9 就应该为yyyy-MM-dd
         SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));// CustomDateEditor为自定义日期编辑器

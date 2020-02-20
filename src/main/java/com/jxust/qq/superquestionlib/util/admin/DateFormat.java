@@ -2,8 +2,7 @@ package com.jxust.qq.superquestionlib.util.admin;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 public class DateFormat
 {
@@ -42,5 +41,33 @@ public class DateFormat
         }
         Date date = sdf.parse(text);
         return date;
+    }
+    public static Map<String,Date> getTime(String period) {
+
+        Map<String,Date> timeRange = new HashMap<>();
+        Calendar calendar = Calendar.getInstance();
+        timeRange.put("endTime",new Date((calendar.getTime().getTime())));
+        switch (period) {
+
+            case "week": {
+                calendar.add(Calendar.DATE, -7);
+            }
+            break;
+
+            case "month": {
+                calendar.add(Calendar.MONTH, -1);
+            }
+            break;
+
+            default: break;
+
+        }
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        timeRange.put("startTime",calendar.getTime());
+        return timeRange;
     }
 }
