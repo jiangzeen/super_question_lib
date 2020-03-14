@@ -1,0 +1,21 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.SchoolInfoMapper">
+
+    <sql id="base_column">
+        school_id,school_name,school_parent_id,school_level
+    </sql>
+    <select id="selectChildIds" resultType="java.lang.String">
+        select getChild(#{id});
+    </select>
+    <select id="selectSchoolInfoById" resultMap="schoolInfo">
+        select <include refid="base_column"/>
+        from sq_school_info where school_id=#{id};
+    </select>
+    <resultMap id="schoolInfo" type="com.jxust.qq.superquestionlib.dto.SchoolInfo">
+        <id property="schoolId" column="school_id"/>
+        <result property="schoolName" column="school_Name" />
+        <result property="schoolParentId" column="school_parent_id"/>
+    </resultMap>
+</mapper>

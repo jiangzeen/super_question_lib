@@ -1,0 +1,52 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.HotExamMapper">
+
+    <sql id="base_column">
+        id,exam_name,exam_time_level,exam_start_time,exam_to_start,exam_tag_ids
+    </sql>
+    <select id="findExams" resultMap="hotExam">
+        select <include refid="base_column"/>
+        from sq_hot_exam;
+    </select>
+    <select id="selectExamByExamName" resultMap="hotExam">
+        select <include refid="base_column"/>
+        from sq_hot_exam where exam_name=#{examName};
+    </select>
+    <select id="selectExamById" resultMap="hotExam">
+        select <include refid="base_column"/>
+        from sq_hot_exam where id=#{id};
+    </select>
+    <insert id="insertExam" useGeneratedKeys="true" parameterType="com.jxust.qq.superquestionlib.dto.admin.EsHotExam">
+        insert into sq_hot_exam(exam_name, exam_time_level,exam_start_time,exam_to_start,exam_tag_ids)
+                            value(#{hotExam.examName}, #{hotExam.examTimeLevel}, #{hotExam.examStartTime},
+                            #{hotExam.examToStartTime},#{hotExam.tagIds})
+    </insert>
+    <update id="updateExamByName">
+        update sq_hot_exam set exam_name=#{hotExam.examName},exam_time_level=#{hotExam.examTimeLevel},
+                            exam_start_time=#{hotExam.examStartTime},exam_to_start=#{hotExam.examToStartTime},
+                            exam_tag_ids=#{hotExam.tagIds}
+        where exam_name=#{hotExam.examName}
+    </update>
+    <update id="updateExamById">
+        update sq_hot_exam set exam_name=#{hotExam.examName},exam_time_level=#{hotExam.examTimeLevel},
+                            exam_start_time=#{hotExam.examStartTime},exam_to_start=#{hotExam.examToStartTime},
+                            exam_tag_ids=#{hotExam.tagIds}
+        where id=#{hotExam.id}
+    </update>
+    <delete id="deleteByExamName">
+        delete from sq_hot_exam where exam_name=#{examName}
+    </delete>
+    <delete id="deleteById">
+        delete from sq_hot_exam where id=#{id}
+    </delete>
+    <resultMap id="hotExam" type="com.jxust.qq.superquestionlib.dto.admin.EsHotExam">
+        <id property="id" column="id"/>
+        <result property="examName" column="exam_name" />
+        <result property="examTimeLevel" column="exam_time_level"/>
+        <result property="examStartTime" column="exam_start_time"/>
+        <result property="examToStartTime" column="exam_to_start"/>
+        <result property="tagIds" column="exam_tag_ids"/>
+    </resultMap>
+</mapper>

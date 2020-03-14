@@ -25,9 +25,9 @@
         update admin set last_loginTime=#{time} where admin_name=#{adminName}
     </update>
     <update id="updateAdminitrator">
-        update admin set admin_password=#{.userPassword},admin_name=#{Adminitrator.adminPassword},
-                            last_loginTime=#{Adminitrator.lastLoginTime}
-        where user_name=#{user.userName}
+        update admin set admin_password=#{adminitrator.adminPassword},admin_name=#{adminitrator.adminName},
+                            last_loginTime=#{adminitrator.lastLoginTime}
+        where admin_name=#{adminitrator.adminName}
     </update>
     <delete id="deleteByAdminName">
         delete from admin where admin_name=#{adminName}
