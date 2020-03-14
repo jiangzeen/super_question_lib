@@ -41,7 +41,6 @@ public class QuestionLibService {
     public int createQuestionLibByUser (String username, String libName,
                                          int tagId, String libUrl, String mark, int hasPrivate) {
         long userId = userService.findUser(username).getUserId();
-        // todo 添加userQuestionLib
         QuestionLib lib = new QuestionLib();
         lib.setQuestionLibLevel(0);
         lib.setQuestionLibCreateTime(LocalDateTime.now());
@@ -102,7 +101,6 @@ public class QuestionLibService {
         DefaultBreakQuestion bqUtil = new DefaultBreakQuestion(filename);
         List<Question> cqList = bqUtil.breakQuestion();
         assert cqList != null;
-        QuestionLibVO libVO = new QuestionLibVO();
         cqList.forEach(cq->{
             cq.setKeyword("");
             cq.setRightTime(0);
@@ -111,11 +109,12 @@ public class QuestionLibService {
             cq.setQuestionLevel(0);
             cq.setCreateTime(LocalDateTime.now());
             cq.setLastModify(LocalDateTime.now());
-            int qId = questionService.insert(cq);
+            questionService.insert(cq);
         });
         JSONObject data = new JSONObject();
         data.put("isComplete", bqUtil.isComplete());
         data.put("data", cqList);
+
         return data;
     }
 
@@ -133,5 +132,14 @@ public class QuestionLibService {
     public int findPublicQuestionLibSize() {
 
         return 0;
+    }
+
+    public List<Integer> findQuestionType(int libId) {
+        return libMapper.selectLibTypes(libId);
+    }
+
+    public boolean isUserLib(int libId, String username) {
+         return
+                 username.equals(libMapper.selectUserName(libId));
     }
 }

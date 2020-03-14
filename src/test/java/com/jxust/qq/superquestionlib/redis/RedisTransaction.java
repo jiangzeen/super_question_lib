@@ -127,8 +127,8 @@ public class RedisTransaction {
 
     @Test
     public void testSell() {
-        purchaseItem(2, "ItemL", 1);
-
+        String s = redisTemplate.opsForValue().get("mailSender:task:model");
+        System.out.println(s);
     }
 
     @Data

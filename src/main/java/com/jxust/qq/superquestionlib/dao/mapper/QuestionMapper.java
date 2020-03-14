@@ -6,6 +6,9 @@ import com.jxust.qq.superquestionlib.vo.QuestionVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 @Repository
 public interface QuestionMapper {
 
@@ -17,4 +20,7 @@ public interface QuestionMapper {
 
     QuestionVO selectQuestionById(@Param("questionId") int questionId);
 
+    List<Integer> selectQuestionByLibId(Map<String, Object> params);
+
+    List<QuestionVO> selectQuestionList(List<Integer> ids);
 }

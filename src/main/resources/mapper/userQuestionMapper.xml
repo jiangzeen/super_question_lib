@@ -1,0 +1,66 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.UserQuestionMapper">
+
+    <insert id="insertQuestion">
+        insert into sq_user_question(question_id, user_name, question_content,
+                                     question_lib_id,create_time,easiness,repetitions,
+                                     intervals,last_practice_time)
+        values
+        <if test="questions != null">
+            <foreach collection="questions" separator=","
+                     item="question">
+                (#{question.questionId}, #{question.username}, #{question.content}, #{question.libId},
+                #{question.createTime}, #{question.easiness}, #{question.repetitions},#{question.interval},null)
+            </foreach>
+        </if>
+    </insert>
+
+    <update id="updateQuestionEasinessEtc">
+        update sq_user_question set easiness=#{easiness}, repetitions=#{repetitions}, intervals=#{interval},
+                                    last_practice_time=#{practiceTime}
+        where user_name=#{username} and question_id=#{questionId}
+    </update>
+
+    <select id="selectRecentQuestion" resultType="com.jxust.qq.superquestionlib.dto.UserQuestion">
+        select
+        question_content as content,question_id as questionId, last_practice_time as lastPracticeTime, easiness
+        from sq_user_question
+        where user_name=#{username}
+        and   question_lib_id=#{libId}
+        and   last_practice_time is not null
+        and   date_format(date_add(last_practice_time, interval intervals DAY), '%Y-%m-%d') = #{nowDay}
+    </select>
+
+
+
+    <select id="selectQuestionByUsernameAndId" resultMap="userQuestionMap">
+        select
+               *
+        from sq_user_question
+        where question_id=#{questionId} and user_name=#{username}
+    </select>
+
+    <select id="selectQuestionWithNullPracticeTime"
+            resultType="com.jxust.qq.superquestionlib.dto.UserQuestion">
+        select
+            question_content as content,question_id as questionId, last_practice_time as lastPracticeTime, easiness
+        from sq_user_question
+        where last_practice_time is null
+        and user_name=#{username}
+        and question_lib_id=#{libId}
+    </select>
+
+    <resultMap id="userQuestionMap" type="com.jxust.qq.superquestionlib.dto.UserQuestion">
+        <id column="question_id" property="questionId"/>
+        <id column="user_name" property="username"/>
+        <result column="question_content" property="content"/>
+        <result column="question_lib_id" property="libId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="easiness" property="easiness"/>
+        <result column="intervals" property="interval"/>
+        <result column="repetitions" property="repetitions"/>
+        <result column="last_practice_time" property="lastPracticeTime"/>
+    </resultMap>
+</mapper>

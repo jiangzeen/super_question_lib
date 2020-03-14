@@ -1,0 +1,144 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.UserTaskMapper">
+
+    <insert id="insertUserTask" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            sq_user_tasks(user_name, mark, question_lib_id,
+                          question_numbers, create_time, end_time, schedule_time, customize,expired)
+            value (#{task.username}, #{task.mark}, #{task.questionLibId}, #{task.questionNumbers},
+                  #{task.createTime}, #{task.endTime}, #{task.scheduleTime}, #{task.customizeList}, 0)
+    </insert>
+
+
+    <update id="updateUserTaskExpired">
+        update
+            sq_user_tasks task
+        set
+            task.expired = 1
+        where
+            task.id = #{id};
+    </update>
+
+    <select id="selectTaskUsername" resultType="java.lang.String">
+        select
+               task.user_name
+        from sq_user_tasks task
+        where
+            task.id = #{id}
+    </select>
+
+    <select id="selectTasksByUsername" resultMap="userTaskVO">
+        select
+               count(id) as count,
+               id, user_name, create_time, schedule_time, question_lib_id,
+               question_numbers, mark
+        from sq_user_tasks task
+        where
+               task.user_name = #{username}
+        and
+               task.expired = 0
+        and
+               task.end_time IS NULL
+        order by create_time desc
+    </select>
+    <select id="selectTasksByUsernameAndExpired"
+            resultType="com.jxust.qq.superquestionlib.vo.TaskDetailInfoVO">
+        select
+                task.id as taskId, task.create_time as createTime,
+                task.question_numbers as questionNumber, task.schedule_time as scheduleTime,
+                lib.question_lib_name as libName, task.mark as mark, task.end_time as endTime
+        from sq_user_tasks task
+        left join sq_question_lib lib
+            on task.question_lib_id = lib.question_lib_id
+        where
+            task.user_name = #{username}
+        and
+            task.expired = 1
+    </select>
+
+    <select id="selectUnfinishedTask" resultType="com.jxust.qq.superquestionlib.vo.TaskDetailInfoVO">
+        select
+            task.id as taskId, task.create_time as createTime,
+            task.question_numbers as questionNumber, task.schedule_time as scheduleTime,task.end_time as endTime,
+            lib.question_lib_name as libName, task.mark as mark, task.has_complete_numbers as completeNum
+        from sq_user_tasks task
+        left join sq_question_lib lib
+            on task.question_lib_id = lib.question_lib_id
+        where
+            task.has_complete_numbers between 1 and (task.question_numbers - 1)
+        and
+            current_timestamp between schedule_time and end_time
+        and
+            task.user_name = #{username}
+    </select>
+
+    <select id="selectExpiredTaskCount" resultType="java.lang.Integer">
+        select
+             count(distinct task.id)
+        from sq_user_tasks task
+        where
+              task.user_name = #{username}
+        and
+              task.expired = 1
+    </select>
+
+    <select id="selectUnfinishedCount" resultType="java.lang.Integer">
+        select
+            count(distinct task.id)
+        from sq_user_tasks task
+        where
+            task.user_name = #{username}
+        and
+            task.has_complete_numbers between 1 and (task.question_numbers - 1)
+        and
+            current_timestamp between schedule_time and end_time
+
+    </select>
+    <select id="selectFinishedCount" resultType="java.lang.Integer">
+        select
+            count(distinct task.id)
+        from sq_user_tasks task
+        where
+            task.user_name = #{username}
+          and
+            task.has_complete_numbers = task.question_numbers
+    </select>
+
+    <select id="selectQuestionList" resultType="java.lang.String">
+        select customize from sq_user_tasks task where task.id = #{taskId}
+    </select>
+    <select id="selectTaskLibId" resultType="hashmap">
+        select
+               task.question_lib_id as libId, task.user_name as username,
+               task.question_numbers as questionNumber
+        from sq_user_tasks task where task.id = #{taskId}
+    </select>
+    <select id="selectTaskById" resultType="com.jxust.qq.superquestionlib.dto.UserTasks">
+        select
+        task.schedule_time as scheduleTime, task.end_time as endTime, task.user_name as username
+        from sq_user_tasks task
+        where task.id = #{taskId}
+    </select>
+    <select id="selectExpiredById" resultType="java.lang.Integer">
+        select expired
+        from sq_user_tasks
+        where id = #{id}
+    </select>
+
+    <resultMap id="userTaskVO" type="com.jxust.qq.superquestionlib.vo.UserTaskVO">
+        <result property="count" column="count"/>
+        <result property="username" column="user_name"/>
+        <collection property="tasksList"
+                    ofType="com.jxust.qq.superquestionlib.dto.UserTasks">
+            <result  column="id" property="id"/>
+            <result column="create_time" property="createTime"/>
+            <result column="schedule_time" property="scheduleTime"/>
+            <result column="question_lib_id" property="questionLibId"/>
+            <result column="mark" property="mark"/>
+            <result column="question_numbers" property="questionNumbers"/>
+        </collection>
+    </resultMap>
+
+</mapper>

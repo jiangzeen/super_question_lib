@@ -1,6 +1,7 @@
 package com.jxust.qq.superquestionlib.controller;
 
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dto.QuestionNote;
 import com.jxust.qq.superquestionlib.dto.Result;
@@ -103,6 +104,25 @@ public class UserQuestionController {
         int lId = Integer.parseInt(map.get("libId"));
         List<UserQuestionHistoryVO> data = userQuestionHistoryService.
                 findHistoriesByLibIdAndUsername(username, lId);
+        return Result.SUCCESS(data);
+    }
+
+
+    /**
+     * 获取用户一个题库最近的做题信息
+     * @param limit nullable
+     * @param libId 题库Id
+     * @return result
+     */
+    @GetMapping("/user/user_question/recent_result")
+    public Result recentQuestionResult(@RequestParam(required = false) Integer limit, @RequestParam("libId") int libId) {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        JSONArray data;
+        if (limit == null) {
+            data = userQuestionHistoryService.findRecentQuestionByDefault(libId, username);
+        } else {
+            data = userQuestionHistoryService.findRecentQuestionWithLimit(libId, username, limit);
+        }
         return Result.SUCCESS(data);
     }
 

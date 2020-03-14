@@ -17,4 +17,8 @@ public interface QuestionLibMapper {
     int selectPublicQuestionLib();
 
     List<QuestionLibVO> selectPublicLibByPage(@Param("total") int total, @Param("limit") int limit, @Param("typeId") Integer typeId);
+
+    List<Integer> selectLibTypes(@Param("id")int libId);
+
+    String selectUserName(int libId);
 }

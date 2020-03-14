@@ -36,6 +36,24 @@
               </if>
         order by sq_lib.question_lib_id limit #{limit}
     </select>
+
+    <select id="selectLibTypes" resultType="java.lang.Integer">
+        select
+            sq_question.question_type_id
+        from sq_question
+        where question_lib_id = #{id}
+        group by question_type_id
+    </select>
+
+    <select id="selectUserName" resultType="java.lang.String">
+        select
+               suqh.user_name
+        from sq_question_lib lib
+        left join
+            sq_user_question_lib suqh on lib.question_lib_id = suqh.question_lib_id
+        where lib.question_lib_id = #{libId}
+    </select>
+
     <resultMap id="questionLibVo" type="com.jxust.qq.superquestionlib.vo.QuestionLibVO">
         <result column="question_lib_id" property="libId"/>
         <result column="question_lib_name" property="libName"/>

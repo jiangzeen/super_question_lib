@@ -1,14 +1,17 @@
 package com.jxust.qq.superquestionlib.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dto.Question;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.User;
 import com.jxust.qq.superquestionlib.service.*;
 import com.jxust.qq.superquestionlib.vo.QuestionLibVO;
 import com.jxust.qq.superquestionlib.vo.QuestionVO;
 import com.jxust.qq.superquestionlib.vo.UserVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +25,7 @@ import java.util.Map;
  * @author jiangzeen
  * @data   2019/10/2 20:05
  */
+@Slf4j
 @RestController
 public class QuestionLibController {
 
@@ -30,32 +34,42 @@ public class QuestionLibController {
     private final UserQuestionLibService userQuestionLibService;
     private final LibTagService tagService;
     private final UserService userService;
+    // 后面加的一个ThreadLocal属性,用于存放当前线程用户名(不用参数传递了,需要改好几个地方,比较麻烦)
+    public static final ThreadLocal<String> userLocal = new ThreadLocal<>();
+    private final UserQuestionService userQuestionService;
 
     public QuestionLibController(QuestionLibService questionLibService, LibTagService tagService,
                                  QuestionService questionService, UserQuestionLibService userQuestionLibService,
-                                 UserService userService) {
+                                 UserService userService, UserQuestionService userQuestionService) {
         this.questionLibService = questionLibService;
         this.tagService = tagService;
         this.questionService = questionService;
         this.userQuestionLibService = userQuestionLibService;
         this.userService = userService;
+        this.userQuestionService = userQuestionService;
     }
 
     @PostMapping("/user/question_lib/create/{username}")
     public Result createLib(@PathVariable("username") String username, @RequestParam("question_file") MultipartFile file,
                             @RequestParam("tag_id") String tagId, @RequestParam("mark") String mark,
                             @RequestParam("hasPrivate") String hasPrivate, @RequestParam("privateName") String privateName) {
+        String user = (String) SecurityUtils.getSubject().getPrincipal();
+        if (!user.equals(username)) {
+            return Result.PERMISSIONERROR();
+        }
         String originName = file.getOriginalFilename();
+        userLocal.set(username);
         try {
             String saveUrl = questionLibService.saveOriginLibFile(file, username);
+            log.info("用户{}上传题库文件:{}", username, originName);
             // TODO 开启事务处理,防止如果解析失败等情况出现
             int libId = questionLibService.createQuestionLibByUser(username, originName, Integer.parseInt(tagId), saveUrl, mark, Integer.parseInt(hasPrivate));
-            System.out.println("libId:" + libId);
             userQuestionLibService.saveUserLibRecord(username, libId, privateName);
             // 获取到原始上传文件在服务器中的位置 -- example: english.docx
             String fileUrl = questionLibService.getFileUrl(saveUrl);
             try {
                 JSONObject res = questionLibService.createQuestionByLibFile(fileUrl, libId);
+                userQuestionService.addUserQuestion((List<Question>) res.get("data"));
                 return Result.SUCCESS(res);
             } catch (IOException e) {
                 Result res = Result.FAILD("");

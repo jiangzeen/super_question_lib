@@ -38,6 +38,33 @@
                 sq_question.question_id = #{questionId}
     </select>
 
+    <select id="selectQuestionByLibId" resultType="java.lang.Integer">
+        select
+                question.question_id
+        from sq_question question
+        where
+              question_lib_id = #{libId}
+        <if test="ids != null and ids.size > 0">
+            and
+            question_id not in
+            <foreach collection="ids" item="id" index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        limit #{limit}
+    </select>
+
+    <select id="selectQuestionList" resultType="com.jxust.qq.superquestionlib.vo.QuestionVO">
+        select
+            question_id as id, question_lib_id as libId, question_content as content
+        from sq_question
+        where
+            question_id in
+            <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+    </select>
+
 
     <resultMap id="base_mapper" type="com.jxust.qq.superquestionlib.dto.Question">
         <id  property="questionId" column="question_id"/>

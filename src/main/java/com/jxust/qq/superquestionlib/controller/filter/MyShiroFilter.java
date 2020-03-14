@@ -8,7 +8,9 @@ import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -29,6 +31,9 @@ public class MyShiroFilter extends FormAuthenticationFilter {
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         Subject su = SecurityUtils.getSubject();
+        HttpServletRequest requests = (HttpServletRequest) request;
+        HttpSession session = requests.getSession();
+        log.warn("session:{}", session.getId());
         log.info("subject中的sessionId:{}", su.getSession().getId());
         return su.isAuthenticated();
     }

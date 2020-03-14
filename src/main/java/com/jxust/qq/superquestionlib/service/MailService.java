@@ -1,10 +1,16 @@
 package com.jxust.qq.superquestionlib.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.util.Random;
 
 @Service
@@ -13,7 +19,8 @@ public class MailService {
 
     private String username = "1363646276@qq.com";
     private JavaMailSender sender;
-
+    @Autowired
+    private StringRedisTemplate redisTemplate;
     public MailService(JavaMailSender sender) {
         this.sender = sender;
     }
@@ -38,4 +45,26 @@ public class MailService {
         mailMessage.setText(text);
         sender.send(mailMessage);
     }
+
+    public void sendTaskMessage(String to, String message) throws MessagingException {
+        String subject = (String) redisTemplate.opsForHash().get("mailSender:task:model","subject");
+        if (subject == null) {
+            subject = "super-question-lib";
+        }
+        // 替换模板中的内容
+        String model = (String) redisTemplate.opsForHash().get("mailSender:task:model","content");
+        if (model != null) {
+            model = model.replace("message", message);
+        }else {
+            model = "详情请登录查看";
+        }
+        MimeMessage mimeMessage = sender.createMimeMessage();
+        MimeMessageHelper sendHelper = new MimeMessageHelper(mimeMessage);
+        sendHelper.setFrom(username);
+        sendHelper.setSubject(subject);
+        sendHelper.setTo(to);
+        sendHelper.setText(model, true);
+        sender.send(mimeMessage);
+    }
+
 }

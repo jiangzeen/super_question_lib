@@ -26,4 +26,24 @@
                history.question_lib_id = #{libId}
           and  history.user_name = #{username}
     </select>
+    <select id="selectHistoryErrorQuestion" resultType="hashmap">
+        select
+            history.result, sq.question_id as questionId, sq.question_content as content
+        from sq_user_question_history as history
+        left join sq_question sq
+            on history.question_id = sq.question_id
+        where history.question_lib_id = #{libId} and history.user_name = #{username}
+        limit #{number}
+    </select>
+
+    <select id="selectRecentQuestion" resultType="hashmap">
+        select
+                question_id as questionId, result,user_result as userResult,
+               submit_time as submitTime, suq.question_content as content
+        from sq_user_question_history suqh
+        left join sq_user_question suq
+             using(question_id)
+        where suqh.question_lib_id=#{libId} and suqh.user_name=#{username}
+        limit #{limit}
+    </select>
 </mapper>

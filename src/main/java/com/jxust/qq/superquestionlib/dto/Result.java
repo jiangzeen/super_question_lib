@@ -43,7 +43,18 @@ public class Result {
     }
 
     public static Result URINOTFOUND() {
-        return new Result(404, "访问资源不存在", null);
+        return new Result(404, "访问资源不存在,请检查URL参数", null);
     }
 
+    public static Result PARAMS_MISSING(){
+        return new Result(405, "请求参数不完整", null);
+    }
+
+    public static Result PARAMS_ERROR(){
+        return new Result(410, "请求参数错误", null);
+    }
+
+    public static Result PARAMS_ERROR(Object data){
+        return new Result(410, "请求参数错误", data);
+    }
 }

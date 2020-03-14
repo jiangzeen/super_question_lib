@@ -9,6 +9,8 @@ import com.jxust.qq.superquestionlib.vo.QuestionLibVO;
 import com.jxust.qq.superquestionlib.vo.QuestionVO;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+
 
 @Service
 public class QuestionService {
@@ -44,9 +46,28 @@ public class QuestionService {
         JSONObject JSONQuestion = JSONObject.parseObject(vo.getContent());
         answer = JSONQuestion.getString("answer");
         if (answer == null || answer.trim().equals("")) {
-            return "暂无答案";
+            return null;
         }else {
             return answer;
         }
     }
+
+    public List<QuestionVO> findQuestionListByIds(List<Integer> ids) {
+        return questionMapper.selectQuestionList(ids);
+    }
+
+    public List<Integer> findOtherQuestionId(int libId, List<Integer> srcId, int limit) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("ids", srcId);
+        params.put("libId", libId);
+        params.put("limit", limit);
+        return questionMapper.selectQuestionByLibId(params);
+    }
+
+    public List<QuestionVO> practiceQuestions(List<Integer> types, int nums) {
+        // 难点:时间间隔算法
+        int sum = types.stream().reduce(Integer::sum).orElse(0);
+        return null;
+    }
+
 }
