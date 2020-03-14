@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SuperQuestionLibApplication {
 
     public static void main(String[] args) {
+        //保证ES配置与启动配置相一致,well done,非常好用
+        System.setProperty("es.set.netty.runtime.available.processors", "false");
         SpringApplication.run(SuperQuestionLibApplication.class, args);
     }
 
