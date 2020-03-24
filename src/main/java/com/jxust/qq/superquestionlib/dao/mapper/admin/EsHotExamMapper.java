@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface HotExamMapper
+public interface EsHotExamMapper
 {
      List<EsHotExam> findExams();
-     EsHotExam selectExamByExamName(@Param("examName")String examName);
-     EsHotExam selectExamById(@Param("id")int id);
+     EsHotExam selectExamByExamName(@Param("examName") String examName);
+     EsHotExam selectExamById(@Param("id") int id);
      int insertExam(@Param("hotExam") EsHotExam esHotExam);
      int updateExam(@Param("hotExam") EsHotExam esHotExam);
      int deleteByExamName(@Param("examName") String examName);

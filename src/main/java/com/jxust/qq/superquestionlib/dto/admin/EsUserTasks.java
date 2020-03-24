@@ -32,7 +32,7 @@ public class EsUserTasks
     String userName;
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     String mark;
-    int question_lib_id;
+    int questionLibId;
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     String questionLibName;
     int questionNumbers;

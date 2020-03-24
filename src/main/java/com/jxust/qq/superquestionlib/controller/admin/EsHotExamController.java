@@ -23,7 +23,7 @@ public class EsHotExamController {
     public EsHotExamController(EsHotExamService esHotExamService) {
         this.esHotExamService = esHotExamService;
     }
-    @PostMapping("/admin/hotExam/fuzzyQuery")
+    @PostMapping("admin/hotExam/fuzzyQuery")
     public Result fuzzyQuery(@Param("queryString") String queryString,@Param("pagenum") int pagenum,@Param("pagesize") int pagesize)
     {
         List<EsHotExam> esHotExamList=esHotExamService.matchHotExam(queryString,pagenum,pagesize);
@@ -37,7 +37,7 @@ public class EsHotExamController {
         else
             return Result.FAILD(data);
     }
-    @PostMapping("/admin/hotExam/findById")
+    @PostMapping("admin/hotExam/findById")
     public Result findById(@Param("id")int id)
     {
         EsHotExam esHotExam=null;
@@ -148,7 +148,7 @@ public class EsHotExamController {
     @PostMapping("admin/hotExam/deleteById")
     public Result deleteById(@Param("id")int id)
     {
-        int status=esHotExamService.deleteByExamId(id);
+        int status=esHotExamService.deleteById(id);
         JSONObject data = new JSONObject();
         if(status<0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);

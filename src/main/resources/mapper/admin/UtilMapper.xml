@@ -1,0 +1,12 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.UtilMapper">
+
+    <select id="getSchoolParent" resultType="java.lang.String">
+        select getParent(#{id});
+    </select>
+    <select id="getTagParent" resultType="java.lang.String">
+        select getTagParent(#{id});
+    </select>
+</mapper>

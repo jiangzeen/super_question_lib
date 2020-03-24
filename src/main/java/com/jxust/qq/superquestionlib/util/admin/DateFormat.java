@@ -11,6 +11,7 @@ public class DateFormat
     {
         Date date=null;
         try {
+            if(date_str!=null)
             date=sdf.parse(date_str);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -42,32 +43,19 @@ public class DateFormat
         Date date = sdf.parse(text);
         return date;
     }
-    public static Map<String,Date> getTime(String period) {
+    public static Map<String, String> getTime(int period) {
 
-        Map<String,Date> timeRange = new HashMap<>();
+        Map<String, String> timeRange = new HashMap<>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar calendar = Calendar.getInstance();
-        timeRange.put("endTime",new Date((calendar.getTime().getTime())));
-        switch (period) {
-
-            case "week": {
-                calendar.add(Calendar.DATE, -7);
-            }
-            break;
-
-            case "month": {
-                calendar.add(Calendar.MONTH, -1);
-            }
-            break;
-
-            default: break;
-
-        }
-
+        timeRange.put("endTime", simpleDateFormat.format(calendar.getTime()));
+        calendar.add(Calendar.DATE, -period);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        timeRange.put("startTime",calendar.getTime());
+        timeRange.put("startTime", simpleDateFormat.format(calendar.getTime()));
         return timeRange;
+
     }
 }

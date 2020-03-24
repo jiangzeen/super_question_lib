@@ -1,0 +1,29 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.EsQuestionMapper">
+
+    <insert id="createQuestion" useGeneratedKeys="true" keyProperty="questionId" parameterType="com.jxust.qq.superquestionlib.dto.admin.EsQuestion">
+      insert into sq_question(question_id,question_content,question_level,question_lib_id,question_type_id,right_time,wrong_time,create_time,last_modify,keyword)
+                            value(#{question.questionId},
+                            #{question.questionContent},
+                            #{question.questionLevel},#{question.questionLibId},
+                            #{question.questionTypeId},#{question.rightTime},
+                            #{question.wrongTime},#{question.createTime},
+                            #{question.lastModify},#{question.keyword})
+    </insert>
+    <update id="updateQuestion">
+        update sq_question set question_content=#{question.questionContent},
+question_level=#{question.questionLevel},
+question_lib_id=#{question.questionLibId},
+question_type_id=#{question.questionTypeId},
+right_time=#{question.rightTime},
+wrong_time=#{question.wrongTime},
+create_time=#{question.createTime},
+last_modify=#{question.lastModify},
+keyword=#{question.keyword} where question_id=#{question.questionId}
+    </update>
+    <delete id="deleteById">
+        delete from sq_question where question_id=#{id}
+    </delete>
+</mapper>

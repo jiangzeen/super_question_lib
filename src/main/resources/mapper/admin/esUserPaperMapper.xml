@@ -1,0 +1,40 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.EsUserPaperMapper">
+
+    <sql id="base_column">
+id,user_name,question_lib_id,paper_limit_time,paper_start_time,paper_end_time,paper_result
+    </sql>
+    <select id="selectUserPaperByPaperName" resultMap="userPaper">
+        select <include refid="base_column"/>
+        from userPaper where paper_name=#{paperName};
+    </select>
+    <insert id="insertUserPaper" useGeneratedKeys="true" keyProperty="id" parameterType="com.jxust.qq.superquestionlib.dto.admin.EsUserPaper">
+      insert into user_paper(user_name, question_lib_id,paper_limit_time,paper_start_time,paper_end_time
+      ,paper_result) value(#{userPaper.userName},#{userPaper.questionLibId}, #{userPaper.limitTime},
+                            #{userPaper.startTime},#{userPaper.endTime},
+                            #{userPaper.paperResult})
+    </insert>
+    <update id="updateUserPaper">
+        update user_paper set user_name=#{userPaper.userName},question_lib_id=#{userPaper.questionLibId},
+                            paper_limit_time=#{userPaper.limitTime},paper_start_time=#{userPaper.startTime},
+                            paper_end_time=#{userPaper.endTime},paper_result=#{userPaper.paperResult}
+        where id=#{userPaper.id}
+    </update>
+    <delete id="deleteByUserName">
+        delete from user_paper where user_name=#{userName}
+    </delete>
+    <delete id="deleteById">
+        delete from user_paper where id=#{id}
+    </delete>
+    <resultMap id="userPaper" type="com.jxust.qq.superquestionlib.dto.admin.EsUserPaper">
+        <id property="id" column="id"/>
+        <result property="userName" column="user_name" />
+        <result property="questionLibId" column="question_lib_id"/>
+        <result property="limitTime" column="paper_limit_time"/>
+        <result property="startTime" column="paper_start_time"/>
+        <result property="endTime" column="paper_end_time"/>
+        <result property="paperResult" column="paper_result"/>
+    </resultMap>
+</mapper>

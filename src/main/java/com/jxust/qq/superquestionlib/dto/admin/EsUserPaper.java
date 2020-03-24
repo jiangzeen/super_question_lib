@@ -14,7 +14,7 @@ public class EsUserPaper
     @Id
     private int id;
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
-    private String username;
+    private String userName;
     private int questionLibId;
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     private String questionLibName;
@@ -24,5 +24,5 @@ public class EsUserPaper
     @Field(type = FieldType.Date)
     private Date endTime;
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
-    private String result;
+    private String paperResult;
 }

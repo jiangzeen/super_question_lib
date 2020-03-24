@@ -10,7 +10,7 @@
         user_id, user_name, user_password, user_nick, user_avatar, user_last_login_time,
         user_create_time, user_sex, user_school_id
     </sql>
-    <insert id="insertUser" useGeneratedKeys="true" parameterType="com.jxust.qq.superquestionlib.dto.User">
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="userId" parameterType="com.jxust.qq.superquestionlib.dto.User">
         insert into sq_user(user_name, user_password, user_avatar, user_nick, user_last_login_time,
                             user_create_time, user_sex, user_school_id)
                             value(#{user.userName}, #{user.userPassword}, #{user.userAvatar}, #{user.userNick},

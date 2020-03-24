@@ -21,12 +21,12 @@ public class EsSchoolInfoController
     public EsSchoolInfoController(EsSchoolInfoService schoolInfoService) {
         this.schoolInfoService = schoolInfoService;
     }
-    @PostMapping("/admin/schoolInfo/fuzzyQuery")
+    @PostMapping("admin/schoolInfo/fuzzyQuery")
     public Result fuzzyQuery(@Param("queryString") String queryString,@Param("schoolParentId")int schoolParentId)
     {
         Iterable<EsSchoolInfo> esSchoolInfos=schoolInfoService.boolQuery(queryString,schoolParentId);
         ArrayList<info> infos=new ArrayList<>();
-        infos.add(new info(100,"其他"));
+        infos.add(new info(1000,"其他"));
         for (EsSchoolInfo esSchoolInfo : esSchoolInfos)
         {
             System.out.println(new info(esSchoolInfo.getSchoolId(),esSchoolInfo.getSchoolName()));
@@ -34,6 +34,7 @@ public class EsSchoolInfoController
         }
         JSONObject data=new JSONObject();
         data.put("esSchoolInfos",infos);
+        data.put("pagesum",schoolInfoService.pagesum);
         return Result.SUCCESS(data);
     }
 }

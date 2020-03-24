@@ -1,0 +1,10 @@
+{
+  "analysis": {
+    "analyzer": {
+      "comma": {
+        "type": "pattern",
+        "pattern":","
+      }
+    }
+  }
+}

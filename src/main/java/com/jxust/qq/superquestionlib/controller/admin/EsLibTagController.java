@@ -3,14 +3,17 @@ package com.jxust.qq.superquestionlib.controller.admin;
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsLibTag;
-import com.jxust.qq.superquestionlib.dto.admin.EsSchoolInfo;
 import com.jxust.qq.superquestionlib.service.admin.EsLibTagService;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 
+@Slf4j
+@RestController
 public class EsLibTagController
 {
     private final EsLibTagService libTagService;
@@ -18,18 +21,19 @@ public class EsLibTagController
     public EsLibTagController(EsLibTagService libTagService) {
         this.libTagService = libTagService;
     }
-    @PostMapping("/admin/libTag/fuzzyQuery")
+    @PostMapping("admin/libTag/fuzzyQuery")
     public Result fuzzyQuery(@Param("queryString") String queryString, @Param("parentTagId")int parentTagId)
     {
         Iterable<EsLibTag> esLibTags=libTagService.boolQuery(queryString,parentTagId);
         ArrayList<TagInfo> infos=new ArrayList<>();
-        infos.add(new TagInfo(100,"其他"));
+        infos.add(new TagInfo(1000,"其他"));
         for (EsLibTag esLibTag : esLibTags)
         {
             infos.add(new TagInfo(esLibTag.getTagId(),esLibTag.getTagName()));
         }
         JSONObject data=new JSONObject();
         data.put("esTagInfos",infos);
+        data.put("pagesum",EsLibTagService.pagesum);
         return Result.SUCCESS(data);
     }
 }
