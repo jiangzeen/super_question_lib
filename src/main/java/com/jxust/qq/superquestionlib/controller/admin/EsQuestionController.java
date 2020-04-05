@@ -1,6 +1,7 @@
 package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsQuestion;
 import com.jxust.qq.superquestionlib.dto.admin.EsQuestionLib;
@@ -9,8 +10,7 @@ import com.jxust.qq.superquestionlib.service.admin.EsQuestionService;
 import com.jxust.qq.superquestionlib.util.admin.DateFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -24,8 +24,9 @@ public class EsQuestionController
     public EsQuestionController(EsQuestionService questionService) {
         this.questionService = questionService;
     }
+    @AdminLoginToken
     @PostMapping("admin/question/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString, @Param("pagenum") int pagenum, @Param("pagesize") int pagesize)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString, @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize)
     {
         List<EsQuestion> esQuestionList=questionService.matchQuestion(queryString,pagenum,pagesize);
         JSONObject data=new JSONObject();
@@ -39,11 +40,12 @@ public class EsQuestionController
             return Result.FAILD(data);
     }
     //条件查找
+    @AdminLoginToken
     @PostMapping("admin/question/conditionQuery")
-    public Result conditionQuery(@Param("queryString")String queryString,
-                                 @Param("pagenum") int pagenum,@Param("pagesize") int pagesize
-            ,@Param("questionTypeId") int questionTypeId
-    ,@Param("questionLevelBegin")int questionLevelBegin,@Param("questionLevelEnd")int questionLevelEnd)
+    public Result conditionQuery(@RequestParam("queryString")String queryString,
+                                 @RequestParam("pagenum") int pagenum,@RequestParam("pagesize") int pagesize
+            ,@RequestParam("questionTypeId") int questionTypeId
+    ,@RequestParam("questionLevelBegin")int questionLevelBegin,@RequestParam("questionLevelEnd")int questionLevelEnd)
     {
         List<EsQuestion> esQuestionList=questionService.boolQuestion(queryString,
                 pagenum,pagesize,questionTypeId,questionLevelBegin,questionLevelEnd);
@@ -58,14 +60,16 @@ public class EsQuestionController
             return Result.FAILD(data);
     }
     //题库检索
+    @AdminLoginToken
     @PostMapping("admin/question/findByQuestionLibId")
-    public Result conditionQuery(@Param("queryString")String queryString
-            ,@Param("pagenum") int pagenum,@Param("pagesize") int pagesize,@Param("questionLibId") int questionLibId)
+    public Result conditionQuery(@RequestParam("queryString")String queryString
+            ,@RequestParam("pagenum") int pagenum,@RequestParam("pagesize") int pagesize,@RequestParam("questionLibId") int questionLibId)
     {
         JSONObject data=questionService.findByQuestionLibId(queryString,pagenum,pagesize,questionLibId);
         return Result.SUCCESS(data);
     }
-    @PostMapping("admin/question/count")
+    @AdminLoginToken
+    @GetMapping("admin/question/count")
     public Result count()
     {
         JSONObject data=questionService.staticQuestionLevel();
@@ -74,43 +78,24 @@ public class EsQuestionController
 
 
 
-
-    @PostMapping("admin/question/deleteById")
-    public Result deleteById(@Param("questionId")long id)
+    @AdminLoginToken
+    @GetMapping("admin/question/deleteById/{questionId}")
+    public Result deleteById(@PathVariable("questionId")long id)
     {
         int status=questionService.deleteById(id);
         JSONObject data = new JSONObject();
         if(status<=0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/question/create")
-    public Result create(@Param("questionContent")String  questionContent,
-                         @Param("questionLevel")String questionLevel,
-                         @Param("questionLibId")String questionLibId,
-                         @Param("questionTypeId")String  questionTypeId,
-                         @Param("rightTime")String rightTime,
-                         @Param("wrongTime")String wrongTime,
-                         @Param("createTime")String createTime,
-                         @Param("keyword")String keyword)
+    public Result create(@RequestBody EsQuestion question)
     {
-        EsQuestion question=new EsQuestion();
-        if(questionContent==null) questionContent="";
-        question.setQuestionContent(questionContent);
-        if(questionLevel==null) questionLevel="0";
-        question.setQuestionLevel(Integer.parseInt(questionLevel));
-        if(questionLibId==null) questionLibId="0";
-        question.setQuestionLibId(Integer.parseInt(questionLibId));
-        if(questionTypeId==null) questionTypeId="0";
-        question.setQuestionTypeId(Integer.parseInt(questionTypeId));
-        if(rightTime==null) rightTime="0";
-        question.setRightTime(Integer.parseInt(rightTime));
-        if(wrongTime==null) wrongTime="0";
-        question.setWrongTime(Integer.parseInt(wrongTime));
-        if(createTime==null) question.setCreateTime(new Date());
-        else question.setCreateTime(DateFormat.DateFormatParse(createTime));
+        if(question.getQuestionContent()==null)
+            question.setQuestionContent("");
+        if(question.getCreateTime()==null) question.setCreateTime(new Date());
         question.setLastModify(new Date());
-        if(keyword==null) keyword="";
-        question.setKeyword(keyword);
+        if(question.getKeyword()==null) question.setKeyword("");
         int status=questionService.creatQuestion(question);
         JSONObject data=new JSONObject();
         if (status <= 0) {
@@ -121,35 +106,15 @@ public class EsQuestionController
         }
     }
     //修改
+    @AdminLoginToken
     @PostMapping("admin/question/updateById")
-    public Result updateById(@Param("questionId")long questionId,@Param("questionContent")String  questionContent,
-                             @Param("questionLevel")String questionLevel,
-                             @Param("questionLibId")String questionLibId,
-                             @Param("questionTypeId")String  questionTypeId,
-                             @Param("rightTime")String rightTime,
-                             @Param("wrongTime")String wrongTime,
-                             @Param("createTime")String createTime,
-                             @Param("keyword")String keyword)
+    public Result updateById(@RequestBody EsQuestion question)
     {
-        EsQuestion question=new EsQuestion();
-        question.setQuestionId(questionId);
-        if(questionContent==null) questionContent="";
-        question.setQuestionContent(questionContent);
-        if(questionLevel==null) questionLevel="0";
-        question.setQuestionLevel(Integer.parseInt(questionLevel));
-        if(questionLibId==null) questionLibId="0";
-        question.setQuestionLibId(Integer.parseInt(questionLibId));
-        if(questionTypeId==null) questionTypeId="0";
-        question.setQuestionTypeId(Integer.parseInt(questionTypeId));
-        if(rightTime==null) rightTime="0";
-        question.setRightTime(Integer.parseInt(rightTime));
-        if(wrongTime==null) wrongTime="0";
-        question.setWrongTime(Integer.parseInt(wrongTime));
-        if(createTime==null) question.setCreateTime(new Date());
-        else question.setCreateTime(DateFormat.DateFormatParse(createTime));
+        if(question.getQuestionContent()==null)
+        question.setQuestionContent("");
+        if(question.getCreateTime()==null) question.setCreateTime(new Date());
         question.setLastModify(new Date());
-        if(keyword==null) keyword="";
-        question.setKeyword(keyword);
+        if(question.getKeyword()==null) question.setKeyword("");
         int status=questionService.updateById(question);
         JSONObject data=new JSONObject();
         if (status <= 0) {

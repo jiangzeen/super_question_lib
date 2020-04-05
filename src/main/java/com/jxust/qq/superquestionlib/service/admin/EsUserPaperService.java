@@ -126,6 +126,7 @@ public class EsUserPaperService
                 userPaper.setQuestionLibName(questionLib.getQuestionLibName());
                 userPaperRepository.save(userPaper);
             }
+            else userPaperRepository.save(userPaper);
         }
         return status;
     }
@@ -142,6 +143,7 @@ public class EsUserPaperService
                 userPaper.setQuestionLibName(questionLib.getQuestionLibName());
                 userPaperRepository.save(userPaper);
             }
+            else userPaperRepository.save(userPaper);
         }
         return status;
     }

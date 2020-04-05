@@ -1,0 +1,12 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.EsLibTagMapper">
+
+    <sql id="base_column">
+        lib_tag_id, lib_tag_name, parent_tag_id
+    </sql>
+    <select id="selectTagName" resultType="java.lang.String">
+        select GROUP_CONCAT(lib_tag_name ORDER BY lib_tag_name DESC SEPARATOR '') from sq_lib_tag WHERE FIND_IN_SET(lib_tag_id,getTagParent(#{id}))
+    </select>
+</mapper>

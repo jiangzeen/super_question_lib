@@ -2,6 +2,7 @@ package com.jxust.qq.superquestionlib.dao.mapper.admin;
 import com.jxust.qq.superquestionlib.dto.admin.Adminitrator;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface AdminitratorMapper
 
     Adminitrator selectAdminByAdminName(@Param("adminName") String adminName);
 
-    Adminitrator selectAdminByNameAndPassword(String username, String password);
+    Adminitrator findAdminitratorById(@Param("id")int id);
 
     String selectPasswordByAdmin(String username);
 
@@ -26,4 +27,5 @@ public interface AdminitratorMapper
     void updateLoginTime(@Param("adminName") String adminName, @Param("time") LocalDateTime time);
 
     int deleteByAdminName(@Param("adminName") String adminName);
+    int deleteById(@Param("id")int id);
 }

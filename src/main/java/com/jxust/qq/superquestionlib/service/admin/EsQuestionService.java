@@ -146,10 +146,6 @@ public class EsQuestionService
                 "questionLibId",QuestionLibId);
         boolQueryBuilder.filter(term);
         MultiMatchQueryBuilder matchQuery;
-        System.out.println(queryString);
-        System.out.println(pagenum);
-        System.out.println(pagesize);
-        System.out.println();
         if(!queryString.isEmpty())
         {
             matchQuery= QueryBuilders.multiMatchQuery(queryString,"questionContent","keyword");

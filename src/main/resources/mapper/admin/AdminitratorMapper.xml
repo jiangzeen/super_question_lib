@@ -10,6 +10,10 @@
         select <include refid="base_column"/>
         from admin;
     </select>
+    <select id="findAdminitratorById" resultMap="admin">
+        select <include refid="base_column"/>
+        from admin where admin_id=#{id};
+    </select>
     <select id="selectAdminByAdminName" resultMap="admin">
         select <include refid="base_column"/>
         from admin where admin_name=#{adminName};
@@ -31,6 +35,9 @@
     </update>
     <delete id="deleteByAdminName">
         delete from admin where admin_name=#{adminName}
+    </delete>
+    <delete id="deleteById">
+        delete from admin where admin_id=#{id}
     </delete>
     <resultMap id="admin" type="com.jxust.qq.superquestionlib.dto.admin.Adminitrator">
         <id property="adminId" column="admin_id"/>

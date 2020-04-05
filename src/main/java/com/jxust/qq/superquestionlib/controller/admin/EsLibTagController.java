@@ -1,6 +1,7 @@
 package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsLibTag;
 import com.jxust.qq.superquestionlib.service.admin.EsLibTagService;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -21,8 +23,9 @@ public class EsLibTagController
     public EsLibTagController(EsLibTagService libTagService) {
         this.libTagService = libTagService;
     }
+    @AdminLoginToken
     @PostMapping("admin/libTag/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString, @Param("parentTagId")int parentTagId)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString, @RequestParam("parentTagId")int parentTagId)
     {
         Iterable<EsLibTag> esLibTags=libTagService.boolQuery(queryString,parentTagId);
         ArrayList<TagInfo> infos=new ArrayList<>();

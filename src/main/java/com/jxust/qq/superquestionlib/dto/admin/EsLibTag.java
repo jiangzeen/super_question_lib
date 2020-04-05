@@ -1,5 +1,6 @@
 package com.jxust.qq.superquestionlib.dto.admin;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -7,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Document(indexName = "sq_lib_tag",type = "lib_tag",createIndex = true,refreshInterval = "-1")
 public class EsLibTag
 {

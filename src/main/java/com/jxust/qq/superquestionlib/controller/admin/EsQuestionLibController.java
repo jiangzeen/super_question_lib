@@ -1,17 +1,14 @@
 package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
-import com.jxust.qq.superquestionlib.dto.QuestionLib;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsQuestionLib;
-import com.jxust.qq.superquestionlib.dto.admin.EsUserPaper;
 import com.jxust.qq.superquestionlib.service.admin.EsHotExamService;
+import com.jxust.qq.superquestionlib.service.admin.EsLibTagService;
 import com.jxust.qq.superquestionlib.service.admin.EsQuestionLibService;
-import com.jxust.qq.superquestionlib.util.admin.DateFormat;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -21,11 +18,14 @@ import java.util.List;
 public class EsQuestionLibController
 {
    private final EsQuestionLibService libService;
-    public EsQuestionLibController(EsQuestionLibService libService) {
+   private final EsLibTagService tagService;
+    public EsQuestionLibController(EsQuestionLibService libService, EsLibTagService tagService) {
         this.libService = libService;
+        this.tagService = tagService;
     }
+    @AdminLoginToken
     @PostMapping("admin/questionLib/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString, @Param("pagenum") int pagenum, @Param("pagesize") int pagesize)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString, @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize)
     {
         List<EsQuestionLib> esQuestionLibList=libService.matchQuestionLib(queryString,pagenum,pagesize);
         JSONObject data=new JSONObject();
@@ -38,8 +38,9 @@ public class EsQuestionLibController
         else
             return Result.FAILD(data);
     }
-    @PostMapping("admin/questionLib/findById")
-    public Result findById(@Param("id")int id)
+    @AdminLoginToken
+    @GetMapping("admin/questionLib/findById/{id}")
+    public Result findById(@PathVariable("id")int id)
     {
         EsQuestionLib questionLib=null;
         questionLib=libService.termQuestionLib(id);
@@ -53,11 +54,12 @@ public class EsQuestionLibController
         else
             return Result.FAILD(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/questionLib/conditionQuery")
-    public Result conditionQuery(@Param("queryString") String queryString,
-                                 @Param("pagenum") int pagenum,@Param("pagesize") int pagesize
-                                 ,@Param("hasPrivate")int hasPrivate,@Param("questionLibLevelBegin") int questionLibLevelBegin
-            ,@Param("questionLibLevelEnd") int questionLibLevelEnd,@Param("ligTagId") int libTagId)
+    public Result conditionQuery(@RequestParam("queryString") String queryString,
+                                 @RequestParam("pagenum") int pagenum,@RequestParam("pagesize") int pagesize
+                                 ,@RequestParam("hasPrivate")int hasPrivate,@RequestParam("questionLibLevelBegin") int questionLibLevelBegin
+            ,@RequestParam("questionLibLevelEnd") int questionLibLevelEnd,@RequestParam("ligTagId") int libTagId)
     {
         List<EsQuestionLib> esQuestionLibList=libService.boolQuestionLib(queryString,pagenum,
                 pagesize,hasPrivate,questionLibLevelBegin,questionLibLevelEnd,libTagId);
@@ -71,38 +73,25 @@ public class EsQuestionLibController
         else
             return Result.FAILD(data);
     }
-    //查询
-
-
-    @PostMapping("admin/questionLib/deleteById")
-    public Result deleteById(@Param("id")long id)
+    //删除
+    @AdminLoginToken
+    @GetMapping("admin/questionLib/deleteById/{id}")
+    public Result deleteById(@PathVariable("id")long id)
     {
         int status=libService.deleteById(id);
         JSONObject data = new JSONObject();
         if(status<=0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/questionLib/create")
-    public Result create(@Param("questionLibLevel")int questionLibLevel,
-                         @Param("questionLibName")String questionLibName,
-                         @Param("questionLibPrivate")int questionLibPrivate,
-                         @Param("questionLibCreate") String questionLibCreate,
-                         @Param("questionLibTagId")int questionLibTagId,
-                         @Param("questionLibMark")String questionLibMark,
-                         @Param("questionLibUrl")String questionLibUrl)
+    public Result create(@RequestBody EsQuestionLib questionLib)
     {
-        EsQuestionLib questionLib=new EsQuestionLib();
-        questionLib.setQuestionLibLevel(questionLibLevel);
-        if(questionLibName==null) questionLibName="";
-        questionLib.setQuestionLibName(questionLibName);
-        questionLib.setHasPrivate(questionLibPrivate);
-        if(questionLibCreate==null) questionLib.setQuestionLibCreateTime(new Date());
-        else questionLib.setQuestionLibCreateTime(DateFormat.DateFormatParse(questionLibCreate));
-        questionLib.setQuestionLibTagId(questionLibTagId);
-        if(questionLibMark==null) questionLibMark="";
-        questionLib.setQuestionLibMark(questionLibMark);
-        if(questionLibUrl==null) questionLibUrl="";
-        questionLib.setQuestionLibUrl(questionLibUrl);
+        if(questionLib.getQuestionLibName()==null) questionLib.setQuestionLibName("");
+        if(questionLib.getQuestionLibCreateTime()==null) questionLib.setQuestionLibCreateTime(new Date());
+        if(questionLib.getQuestionLibMark()==null)
+            questionLib.setQuestionLibMark("");
+        if(questionLib.getQuestionLibUrl()==null) questionLib.setQuestionLibUrl("");
         int status=libService.creatQuestionLib(questionLib);
         JSONObject data=new JSONObject();
         if (status <= 0) {
@@ -113,28 +102,16 @@ public class EsQuestionLibController
         }
     }
     //修改
+    @AdminLoginToken
     @PostMapping("admin/questionLib/updateById")
-    public Result updateById(@Param("id")long id,@Param("questionLibLevel")int questionLibLevel,
-                             @Param("questionLibName")String questionLibName,
-                             @Param("questionLibPrivate")int questionLibPrivate,
-                             @Param("questionLibCreate") String questionLibCreate,
-                             @Param("questionLibTagId")int questionLibTagId,
-                             @Param("questionLibMark")String questionLibMark,
-                             @Param("questionLibUrl")String questionLibUrl)
+    public Result updateById(@RequestBody EsQuestionLib questionLib)
     {
-        EsQuestionLib questionLib=new EsQuestionLib();
-        questionLib.setQuestionLibId(id);
-        questionLib.setQuestionLibLevel(questionLibLevel);
-        if(questionLibName==null) questionLibName="";
-        questionLib.setQuestionLibName(questionLibName);
-        questionLib.setHasPrivate(questionLibPrivate);
-        if(questionLibCreate==null) questionLib.setQuestionLibCreateTime(new Date());
-        else questionLib.setQuestionLibCreateTime(DateFormat.DateFormatParse(questionLibCreate));
-        questionLib.setQuestionLibTagId(questionLibTagId);
-        if(questionLibMark==null) questionLibMark="";
-        questionLib.setQuestionLibMark(questionLibMark);
-        if(questionLibUrl==null) questionLibUrl="";
-        questionLib.setQuestionLibUrl(questionLibUrl);
+
+        if(questionLib.getQuestionLibName()==null) questionLib.setQuestionLibName("");
+        if(questionLib.getQuestionLibCreateTime()==null) questionLib.setQuestionLibCreateTime(new Date());
+        if(questionLib.getQuestionLibMark()==null)
+        questionLib.setQuestionLibMark("");
+        if(questionLib.getQuestionLibUrl()==null) questionLib.setQuestionLibUrl("");
         int status=libService.updateById(questionLib);
         JSONObject data=new JSONObject();
         if (status <= 0) {
@@ -144,5 +121,10 @@ public class EsQuestionLibController
             return Result.SUCCESS(data);
         }
     }
-
+    @AdminLoginToken
+    @GetMapping("/admin/questionLib/tags")
+    public Result getTags() {
+        JSONObject data = tagService.getAllTagsWithChildrenTag();
+        return Result.SUCCESS(data);
+    }
 }

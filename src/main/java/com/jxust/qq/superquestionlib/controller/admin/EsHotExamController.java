@@ -1,17 +1,12 @@
 package com.jxust.qq.superquestionlib.controller.admin;
 import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsHotExam;
 import com.jxust.qq.superquestionlib.service.admin.EsHotExamService;
 import com.jxust.qq.superquestionlib.util.admin.DateFormat;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
-import java.text.SimpleDateFormat;
+import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 
@@ -23,8 +18,11 @@ public class EsHotExamController {
     public EsHotExamController(EsHotExamService esHotExamService) {
         this.esHotExamService = esHotExamService;
     }
+
+    @AdminLoginToken
     @PostMapping("admin/hotExam/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString,@Param("pagenum") int pagenum,@Param("pagesize") int pagesize)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString,@RequestParam("pagenum") int pagenum,
+                             @RequestParam("pagesize") int pagesize)
     {
         List<EsHotExam> esHotExamList=esHotExamService.matchHotExam(queryString,pagenum,pagesize);
         JSONObject data=new JSONObject();
@@ -37,8 +35,9 @@ public class EsHotExamController {
         else
             return Result.FAILD(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/hotExam/findById")
-    public Result findById(@Param("id")int id)
+    public Result findById(@RequestParam("id")int id)
     {
         EsHotExam esHotExam=null;
         esHotExam=esHotExamService.termHotExam(id);
@@ -52,10 +51,12 @@ public class EsHotExamController {
         else
             return Result.FAILD(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/hotExam/conditionQuery")
-    public Result conditionQuery(@Param("queryString") String queryString, @Param("dir") boolean dir,
-                                 @Param("pagenum") int pagenum,@Param("pagesize") int pagesize,@Param("startTimeBegin") String startTimeBegin
-            ,@Param("startTimeEnd") String startTimeEnd)
+    public Result conditionQuery(@RequestParam("queryString") String queryString, @RequestParam("dir") boolean dir,
+                                 @RequestParam("pagenum") int pagenum,@RequestParam("pagesize") int pagesize
+            ,@RequestParam("startTimeBegin") String startTimeBegin
+            ,@RequestParam("startTimeEnd") String startTimeEnd)
     {
             List<EsHotExam> esHotExamList=esHotExamService.boolHotExam(queryString,dir,pagenum,
                     pagesize,DateFormat.DateFormatParse(startTimeBegin),DateFormat.DateFormatParse(startTimeEnd));
@@ -73,17 +74,16 @@ public class EsHotExamController {
 
 
     //修改
+    @AdminLoginToken
     @PostMapping("admin/hotExam/updateById")
-    public Result updateById(@Param("id")int id,@Param("examName")String examName,
-             @Param("examStartTime")String examStartTime,
-                             @Param("examToStartTime")int examToStartTime, @Param("tagIds")String tagIds)
+    public Result updateById(@RequestBody EsHotExam esHotExam)
     {
-        EsHotExam esHotExam=new EsHotExam();
-        esHotExam.setId(id);
-        esHotExam.setExamName(examName);
-        esHotExam.setExamStartTime(DateFormat.DateFormatParse(examStartTime));
-        esHotExam.setExamToStartTime(examToStartTime);
-        esHotExam.setTagIds(tagIds);
+        if(esHotExam.getExamName()==null)
+            esHotExam.setExamName("");
+        if(esHotExam.getExamStartTime()==null)
+            esHotExam.setExamStartTime(new Date());
+        if(esHotExam.getTagIds()==null)
+            esHotExam.setTagIds("");
         int status=esHotExamService.updateExamById(esHotExam);
         JSONObject data=new JSONObject();
         if (status < 0) {
@@ -93,15 +93,16 @@ public class EsHotExamController {
             return Result.SUCCESS(data);
         }
     }
+    @AdminLoginToken
     @PostMapping("admin/hotExam/updateByName")
-    public Result updateByName(@Param("examName")String examName, @Param("examStartTime")String examStartTime,
-                             @Param("examToStartTime")int examToStartTime, @Param("tagIds")String tagIds)
+    public Result updateByName(@RequestBody EsHotExam esHotExam)
     {
-        EsHotExam esHotExam=new EsHotExam();
-        esHotExam.setExamName(examName);
-        esHotExam.setExamStartTime(DateFormat.DateFormatParse(examStartTime));
-        esHotExam.setExamToStartTime(examToStartTime);
-        esHotExam.setTagIds(tagIds);
+        if(esHotExam.getExamName()==null)
+            esHotExam.setExamName("");
+        if(esHotExam.getExamStartTime()==null)
+            esHotExam.setExamStartTime(new Date());
+        if(esHotExam.getTagIds()==null)
+            esHotExam.setTagIds("");
         int status=esHotExamService.updateExamByName(esHotExam);
         JSONObject data=new JSONObject();
         if (status < 0) {
@@ -112,15 +113,17 @@ public class EsHotExamController {
         }
     }
     //增加
+    @AdminLoginToken
     @PostMapping("admin/hotExam/create")
-    public Result findAll(@Param("examName")String examName, @Param("examStartTime")Date examStartTime,
-                          @Param("examToStartTime")int examToStartTime, @Param("tagIds")String tagIds)
+    public Result create(@RequestBody EsHotExam esHotExam)
     {
-           EsHotExam esHotExam=new EsHotExam();
-           esHotExam.setExamName(examName);
-           esHotExam.setExamStartTime(examStartTime);
-           esHotExam.setExamToStartTime(examToStartTime);
-           esHotExam.setTagIds(tagIds);
+        System.out.println(esHotExam.getExamStartTime());
+        if(esHotExam.getExamName()==null)
+           esHotExam.setExamName("");
+        if(esHotExam.getExamStartTime()==null)
+           esHotExam.setExamStartTime(new Date());
+           if(esHotExam.getTagIds()==null)
+               esHotExam.setTagIds("");
            int status=esHotExamService.creatHotExam(esHotExam);
            JSONObject data=new JSONObject();
         if (status < 0) {
@@ -130,8 +133,9 @@ public class EsHotExamController {
             return Result.SUCCESS(data);
         }
     }
+    @AdminLoginToken
     @PostMapping("admin/hotExam/findAll")
-    public Result findAll(@Param("pagenum")int pagenum,@Param("pagesize") int pagesize)
+    public Result findAll(@RequestParam("pagenum")int pagenum,@RequestParam("pagesize") int pagesize)
     {
         List<EsHotExam> esHotExamList=esHotExamService.findAll(pagenum,pagesize);
         JSONObject data = new JSONObject();
@@ -144,28 +148,22 @@ public class EsHotExamController {
         else
             return Result.FAILD(data);
     }
-
-    @PostMapping("admin/hotExam/deleteById")
-    public Result deleteById(@Param("id")int id)
+    @AdminLoginToken
+    @GetMapping("admin/hotExam/deleteById/{id}")
+    public Result deleteById(@PathVariable("id")int id)
     {
         int status=esHotExamService.deleteById(id);
         JSONObject data = new JSONObject();
         if(status<0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);
     }
-
-    @PostMapping("admin/hotExam/deleteByName")
-    public Result deleteByName(@Param("examName")String examName)
+    @AdminLoginToken
+    @GetMapping("admin/hotExam/deleteByName/{examName}")
+    public Result deleteByName(@PathVariable("examName")String examName)
     {
         int status=esHotExamService.deleteByExamName(examName);
         JSONObject data = new JSONObject();
         if(status<0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);
-    }
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        //转换日期 注意这里的转化要和传进来的字符串的格式一直 如2015-9-9 就应该为yyyy-MM-dd
-        SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));// CustomDateEditor为自定义日期编辑器
     }
 }

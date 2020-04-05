@@ -1,15 +1,13 @@
 package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsUserTasks;
 import com.jxust.qq.superquestionlib.service.admin.EsHotExamService;
 import com.jxust.qq.superquestionlib.service.admin.EsUserTasksService;
-import com.jxust.qq.superquestionlib.util.admin.DateFormat;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -24,8 +22,9 @@ public class EsUserTasksController
     public EsUserTasksController(EsUserTasksService userTasksService) {
         this.userTasksService = userTasksService;
     }
+    @AdminLoginToken
     @PostMapping("/admin/userTasks/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString, @Param("pagenum") int pagenum, @Param("pagesize") int pagesize)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString, @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize)
     {
         List<EsUserTasks> esUserTasksList=userTasksService.matchTasks(queryString,pagenum,pagesize);
         JSONObject data=new JSONObject();
@@ -38,8 +37,9 @@ public class EsUserTasksController
         else
             return Result.FAILD(data);
     }
-    @PostMapping("/admin/userTasks/findById")
-    public Result findById(@Param("id")int id)
+    @AdminLoginToken
+    @GetMapping("/admin/userTasks/findById/{id}")
+    public Result findById(@PathVariable("id")int id)
     {
         EsUserTasks esUserTasks=null;
         esUserTasks=userTasksService.termTask(id);
@@ -53,12 +53,13 @@ public class EsUserTasksController
             return Result.FAILD(data);
     }
     //条件查找
+    @AdminLoginToken
     @PostMapping("admin/userTasks/conditionQuery")
-    public Result conditionQuery(@Param("queryString") String queryString, @Param("dir") boolean dir,
-                                 @Param("pagenum") int pagenum, @Param("pagesize") int pagesize,
-                                 @Param("questionNumBegin") int questionNumBegin
-            ,@Param("questionNumEnd") int questionNumEnd,@Param("expired")int expired
-            ,@Param("hasCompleteNumbers") int hasCompleteNumbers)
+    public Result conditionQuery(@RequestParam("queryString") String queryString, @RequestParam("dir") boolean dir,
+                                 @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize,
+                                 @RequestParam("questionNumBegin") int questionNumBegin
+            ,@RequestParam("questionNumEnd") int questionNumEnd,@RequestParam("expired")int expired
+            ,@RequestParam("hasCompleteNumbers") int hasCompleteNumbers)
     {
         List<EsUserTasks> esUserTasksList=userTasksService.boolTasks(queryString,pagenum,
                 pagesize,
@@ -73,47 +74,37 @@ public class EsUserTasksController
         else
             return Result.FAILD(data);
     }
-    @PostMapping("admin/userTasks/deleteById")
-    public Result deleteById(@Param("id")int id)
+    @AdminLoginToken
+    @GetMapping("admin/userTasks/deleteById")
+    public Result deleteById(@PathVariable("id")int id)
     {
         int status=userTasksService.deleteById(id);
         JSONObject data = new JSONObject();
         if(status<=0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);
     }
-    @PostMapping("admin/userTasks/deleteByUserName")
-    public Result deleteByUserName(@Param("userName")String userName)
+    @AdminLoginToken
+    @GetMapping("admin/userTasks/deleteByUserName/{userName}")
+    public Result deleteByUserName(@PathVariable("userName")String userName)
     {
         int status=userTasksService.deleteByUserName(userName);
         JSONObject data = new JSONObject();
         if(status<=0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/userTasks/create")
-    public Result create(@Param("userName")String userName,
-                         @Param("mark")String mark,
-                         @Param("questionLibId")int questionLibId,
-                         @Param("questionNumbers")int questionNumbers,
-                         @Param("createTime")String createTime,
-            @Param("endTime") String endTime,
-            @Param("scheduleTime")String scheduleTime,@Param("expired")int expired,
-        @Param("hasCompleteNumbers")int hasCompleteNumbers)
+    public Result create(@RequestBody EsUserTasks userTasks)
         {
-            EsUserTasks userTasks=new EsUserTasks();
-            if(userName==null) userName="";
-            userTasks.setUserName(userName);
-        if(mark==null) mark="null";
-        userTasks.setMark(mark);
-        userTasks.setQuestionLibId(questionLibId);
-        userTasks.setQuestionNumbers(questionNumbers);
-        if(createTime==null)
+            if(userTasks.getUserName()==null)
+                userTasks.setUserName("");
+            if(userTasks.getMark()==null)
+                userTasks.setMark("");
+            if(userTasks.getCreatTime()==null)
                 userTasks.setCreatTime(new Date());
-            else
-                userTasks.setCreatTime(DateFormat.DateFormatParse(createTime));
-        userTasks.setEndTime(DateFormat.DateFormatParse(endTime));
-        userTasks.setScheduleTime(DateFormat.DateFormatParse(scheduleTime));
-        userTasks.setExpired(expired);
-        userTasks.setHasCompleteNumbers(hasCompleteNumbers);
+            if(userTasks.getEndTime()==null)
+                userTasks.setEndTime(new Date());
+            userTasks.setScheduleTime(new Date());
         int status=userTasksService.creatUserTasks(userTasks);
         JSONObject data=new JSONObject();
         if (status <= 0) {
@@ -124,30 +115,20 @@ public class EsUserTasksController
         }
     }
     //修改
+    @AdminLoginToken
     @PostMapping("admin/userTasks/updateById")
-    public Result updateById(@Param("id")int id,@Param("userName")String userName,
-                             @Param("mark")String mark,
-                             @Param("questionLibId")int questionLibId,
-                             @Param("questionNumbers")int questionNumbers,
-                             @Param("creatTime")String creatTime,
-                             @Param("endTime") String endTime,
-                             @Param("scheduleTime")String scheduleTime,@Param("expired")int expired,
-                             @Param("hasCompleteNumbers")int hasCompleteNumbers)
+    public Result updateById(@RequestBody EsUserTasks userTasks)
     {
-        EsUserTasks userTasks=new EsUserTasks();
-        userTasks.setId(id);
-        if(userName==null) userName="";
-        userTasks.setUserName(userName);
-        if(mark==null) mark="";
-        userTasks.setMark(mark);
-        userTasks.setQuestionLibId(questionLibId);
-        userTasks.setQuestionNumbers(questionNumbers);
-        if(creatTime==null) userTasks.setCreatTime(new Date());
-        else userTasks.setCreatTime(DateFormat.DateFormatParse(creatTime));
-        userTasks.setEndTime(DateFormat.DateFormatParse(endTime));
-        userTasks.setScheduleTime(DateFormat.DateFormatParse(scheduleTime));
-        userTasks.setExpired(expired);
-        userTasks.setHasCompleteNumbers(hasCompleteNumbers);
+
+        if(userTasks.getUserName()==null)
+        userTasks.setUserName("");
+        if(userTasks.getMark()==null)
+        userTasks.setMark("");
+        if(userTasks.getCreatTime()==null)
+        userTasks.setCreatTime(new Date());
+        if(userTasks.getEndTime()==null)
+        userTasks.setEndTime(new Date());
+        userTasks.setScheduleTime(new Date());
         int status=userTasksService.updateUserTasks(userTasks);
         JSONObject data=new JSONObject();
         if (status <= 0) {

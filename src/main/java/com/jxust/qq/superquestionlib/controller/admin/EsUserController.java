@@ -1,6 +1,7 @@
 package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsQuestion;
 import com.jxust.qq.superquestionlib.dto.admin.EsUser;
@@ -10,8 +11,7 @@ import com.jxust.qq.superquestionlib.service.admin.EsUserService;
 import com.jxust.qq.superquestionlib.util.admin.DateFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -27,8 +27,9 @@ public class EsUserController
         this.userService = userService;
         this.userService2 = userService2;
     }
+    @AdminLoginToken
     @PostMapping("admin/user/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString, @Param("pagenum") int pagenum, @Param("pagesize") int pagesize)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString, @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize)
     {
         List<EsUser> esUserList=userService.matchUser(queryString,pagenum,pagesize);
         JSONObject data=new JSONObject();
@@ -41,8 +42,9 @@ public class EsUserController
         else
             return Result.FAILD(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/user/findById")
-    public Result findById(@Param("id")long id)
+    public Result findById(@RequestParam("id")long id)
     {
         EsUser esUser=null;
         esUser=userService.termUser(id);
@@ -57,11 +59,12 @@ public class EsUserController
             return Result.FAILD(data);
     }
     //条件查找
+    @AdminLoginToken
     @PostMapping("admin/user/conditionQuery")
-    public Result conditionQuery(@Param("queryString") String queryString, @Param("dir") boolean dir,
-                                 @Param("pagenum") int pagenum, @Param("pagesize") int pagesize,
-                                 @Param("schoolInfoId") int schoolInfoId, @Param("sex") int sex,
-                                 @Param("creatTimeBegin") String createTimeBegin,@Param("creatTimeEnd") String createTimeEnd)
+    public Result conditionQuery(@RequestParam("queryString") String queryString, @RequestParam("dir") boolean dir,
+                                 @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize,
+                                 @RequestParam("schoolInfoId") int schoolInfoId, @RequestParam("sex") int sex,
+                                 @RequestParam("creatTimeBegin") String createTimeBegin,@RequestParam("creatTimeEnd") String createTimeEnd)
     {
         List<EsUser> esUserList=userService.boolHotUser(queryString,dir,pagenum,
                 pagesize,
@@ -78,50 +81,37 @@ public class EsUserController
             return Result.FAILD(data);
     }
     //用户登陆统计图
-    @PostMapping("admin/user/chart")
-    public Result chart(@Param("period")int period)
+    @AdminLoginToken
+    @GetMapping("admin/user/chart/{period}")
+    public Result chart(@PathVariable("period")int period)
     {
         JSONObject data=userService.aggregationBuilder(period);
         return Result.SUCCESS(data);
     }
 
-
-    @PostMapping("admin/user/deleteById")
-    public Result deleteById(@Param("userId")long userId)
+    @AdminLoginToken
+    @GetMapping("admin/user/deleteById/{userId}")
+    public Result deleteById(@PathVariable("userId") long userId)
     {
         int status=userService.deleteById(userId);
         JSONObject data = new JSONObject();
         if(status<=0) return Result.SERVERERROR();
         else return Result.SUCCESS(data);
     }
+    @AdminLoginToken
     @PostMapping("admin/user/create")
-    public Result create(@Param("userName")String userName,
-                         @Param("userPassword")String userPassword,
-                         @Param("userAvatar")String userAvatar,
-                         @Param("userNick")String userNick,
-                         @Param("userLastLoginTime")String userLastLoginTime,
-                         @Param("userCreateTime")String userCreateTime,
-                         @Param("userSex")String userSex,
-                         @Param("userSchoolId")String userSchoolId)
+    public Result create(@RequestBody EsUser user)
     {
-        EsUser user=new EsUser();
-        if(userName==null) userName="";
-        user.setUserName(userName);
-        if(userPassword==null) userPassword="0";
-        user.setUserPassword(userPassword);
+        if(user.getUserName()==null)
+            user.setUserName("");
+        if(user.getUserNick()==null) user.setUserNick("");
+        if(user.getUserPassword()==null)
+            user.setUserPassword("");
         user.setUserPassword(userService2.encrypt(user.getUserName(),user.getUserPassword()));
-        if(userAvatar==null) userAvatar="";
-        user.setUserAvatar(userAvatar);
-        if(userNick==null) userNick="";
-        user.setUserNick(userNick);
-        if(userLastLoginTime==null) user.setUserLastLoginTime(new Date());
-        else user.setUserLastLoginTime(DateFormat.DateFormatParse(userLastLoginTime));
-        if(userCreateTime==null) user.setUserCreateTime(new Date());
-        else user.setUserLastLoginTime(DateFormat.DateFormatParse(userCreateTime));
-        if(userSex==null) userSex="0";
-        user.setUserSex(Integer.parseInt(userSex));
-        if(userSchoolId==null) userSchoolId="0";
-        user.setUserSchoolId(Integer.parseInt(userSchoolId));
+        if(user.getUserAvatar()==null)
+            user.setUserAvatar("");
+        if(user.getUserLastLoginTime()==null) user.setUserLastLoginTime(new Date());
+        if(user.getUserCreateTime()==null) user.setUserCreateTime(new Date());
         int status=userService.createUser(user);
         JSONObject data=new JSONObject();
         if (status <= 0) {
@@ -132,36 +122,20 @@ public class EsUserController
         }
     }
     //修改
+    @AdminLoginToken
     @PostMapping("admin/user/updateById")
-    public Result updateById(@Param("userId")String userId,
-                             @Param("userName")String userName,
-                             @Param("userPassword")String userPassword,
-                             @Param("userAvatar")String userAvatar,
-                             @Param("userNick")String userNick,
-                             @Param("userLastLoginTime")String userLastLoginTime,
-                             @Param("userCreateTime")String userCreateTime,
-                             @Param("userSex")String userSex,
-                             @Param("userSchoolId")String userSchoolId)
+    public Result updateById(@RequestBody EsUser user)
     {
-        EsUser user=new EsUser();
-        user.setUserId(Integer.parseInt(userId));
-        if(userName==null) userName="";
-        user.setUserName(userName);
-        if(userNick==null) userNick="";
-        user.setUserNick(userNick);
-        if(userPassword==null) userPassword="0";
-        user.setUserPassword(userPassword);
+        if(user.getUserName()==null)
+        user.setUserName("");
+        if(user.getUserNick()==null) user.setUserNick("");
+        if(user.getUserPassword()==null)
+        user.setUserPassword("");
         user.setUserPassword(userService2.encrypt(user.getUserName(),user.getUserPassword()));
-        if(userAvatar==null) userAvatar="";
-        user.setUserAvatar(userAvatar);
-        if(userLastLoginTime==null) user.setUserLastLoginTime(new Date());
-        else user.setUserLastLoginTime(DateFormat.DateFormatParse(userLastLoginTime));
-        if(userCreateTime==null) user.setUserCreateTime(new Date());
-        else user.setUserLastLoginTime(DateFormat.DateFormatParse(userCreateTime));
-        if(userSex==null) userSex="0";
-        user.setUserSex(Integer.parseInt(userSex));
-        if(userSchoolId==null) userSchoolId="0";
-        user.setUserSchoolId(Integer.parseInt(userSchoolId));
+        if(user.getUserAvatar()==null)
+        user.setUserAvatar("");
+        if(user.getUserLastLoginTime()==null) user.setUserLastLoginTime(new Date());
+        if(user.getUserCreateTime()==null) user.setUserCreateTime(new Date());
         int status=userService.updateById(user);
         JSONObject data=new JSONObject();
         if (status <= 0) {

@@ -1,6 +1,7 @@
 package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsSchoolInfo;
 import com.jxust.qq.superquestionlib.service.admin.EsSchoolInfoService;
@@ -21,6 +22,7 @@ public class EsSchoolInfoController
     public EsSchoolInfoController(EsSchoolInfoService schoolInfoService) {
         this.schoolInfoService = schoolInfoService;
     }
+    @AdminLoginToken
     @PostMapping("admin/schoolInfo/fuzzyQuery")
     public Result fuzzyQuery(@Param("queryString") String queryString,@Param("schoolParentId")int schoolParentId)
     {

@@ -1,5 +1,7 @@
 package com.jxust.qq.superquestionlib.dto.admin;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -10,6 +12,7 @@ import java.time.LocalTime;
 import java.util.Date;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Document(indexName = "sq_user_tasks",type = "user_tasks",createIndex = true,refreshInterval = "-1")
 public class EsUserTasks
 {
@@ -27,21 +30,31 @@ public class EsUserTasks
      *     has_complete_numbers tinyint default 0 null comment '用户已经完成的题目数量'
      */
     @Id
+    @JsonProperty("id")
     int id;
+    @JsonProperty("userName")
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     String userName;
+    @JsonProperty("mark")
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     String mark;
+    @JsonProperty("questionLibId")
     int questionLibId;
     @Field(index = true,type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     String questionLibName;
+    @JsonProperty("questionNumbers")
     int questionNumbers;
     @Field(type = FieldType.Date)
+    @JsonProperty("createTime")
     Date creatTime;
+    @JsonProperty("endTime")
     @Field(type = FieldType.Date)
     Date endTime;
+    @JsonProperty("scheduleTime")
     @Field(type = FieldType.Date)
     Date scheduleTime;
+    @JsonProperty("expired")
     int expired;
+    @JsonProperty("hasCompleteNumbers")
     int hasCompleteNumbers;
 }
