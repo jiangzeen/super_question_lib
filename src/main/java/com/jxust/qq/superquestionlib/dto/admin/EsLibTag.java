@@ -1,6 +1,7 @@
 package com.jxust.qq.superquestionlib.dto.admin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -13,8 +14,11 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class EsLibTag
 {
     @Id
+    @JsonProperty("tagId")
     private long tagId;
+    @JsonProperty("tagName")
     @Field(type = FieldType.Text,analyzer ="ik_max_word",searchAnalyzer = "ik_max_word")
     private String tagName;
+    @JsonProperty("parentTagId")
     private long parentTagId;
 }

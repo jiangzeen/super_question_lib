@@ -88,6 +88,14 @@ public class EsUserController
         JSONObject data=userService.aggregationBuilder(period);
         return Result.SUCCESS(data);
     }
+    //用户增长曲线
+    @AdminLoginToken
+    @GetMapping("admin/user/increaseChart/{period}")
+    public Result increaseChart(@PathVariable("period")int period)
+    {
+        JSONObject data=userService.increaseAggregationBuilder(period);
+        return Result.SUCCESS(data);
+    }
 
     @AdminLoginToken
     @GetMapping("admin/user/deleteById/{userId}")

@@ -3,16 +3,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.EsUserTasksMapper">
 
-    <insert id="createQuestionLib" useGeneratedKeys="true" keyProperty="id" parameterType="com.jxust.qq.superquestionlib.dto.admin.EsUserPaper">
-      insert into sq_question_lib(question_lib_id,question_lib_level,question_lib_name,question_lib_private,question_lib_create_time
-      ,question_lib_tag_id,question_lib_mark,question_lib_url)
-                            value(#{questionLib.question_lib_id},#{questionLib.question_lib_level},#{questionLib.question_lib_name},#{questionLib.question_lib_private},#{questionLib.question_lib_create_time
-      },#{questionLib.question_lib_tag_id},#{questionLib.question_lib_mark},#{questionLib.question_lib_url})
+    <insert id="createUserTasks" useGeneratedKeys="true" keyProperty="id" parameterType="com.jxust.qq.superquestionlib.dto.admin.EsUserTasks">
+      insert into sq_user_tasks(user_name,question_lib_id,mark,question_numbers,create_time
+      ,end_time,schedule_time,expired,has_complete_numbers)
+                            value(#{userTasks.userName},#{userTasks.questionLibId},
+                            #{userTasks.mark},#{userTasks.questionNumbers},
+                            #{userTasks.createTime},#{userTasks.endTime}
+                            ,#{userTasks.scheduleTime},#{userTasks.expired},
+                            #{userTasks.hasCompleteNumbers})
     </insert>
-    <update id="updateQuestionLib">
+    <update id="updateUserTasks">
         update sq_user_tasks set user_name=#{userTasks.userName},question_lib_id=#{userTasks.questionLibId},
                             mark=#{userTasks.mark},question_numbers=#{userTasks.questionNumbers},
-                            create_time=#{userTasks.creatTime},end_time=#{userTasks.endTime}
+                            create_time=#{userTasks.createTime},end_time=#{userTasks.endTime}
                             ,schedule_time=#{userTasks.scheduleTime},expired=#{userTasks.expired},
                             has_complete_numbers=#{userTasks.hasCompleteNumbers}
         where id=#{userTasks.id}

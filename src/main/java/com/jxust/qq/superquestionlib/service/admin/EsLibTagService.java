@@ -3,6 +3,7 @@ package com.jxust.qq.superquestionlib.service.admin;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dao.mapper.LibTagMapper;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.EsLibTagMapper;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.repository.EsLibTagRepository;
 import com.jxust.qq.superquestionlib.dto.LibTag;
 import com.jxust.qq.superquestionlib.dto.admin.EsLibTag;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +29,8 @@ public class EsLibTagService
     EsLibTagRepository eslibTagRepository;
     @Autowired
     LibTagMapper libTagMapper;
+    @Autowired
+    EsLibTagMapper esLibTagMapper;
     public List<LibTag> getAllParentTag() {
         return libTagMapper.selectParentTags();
     }
@@ -44,6 +48,49 @@ public class EsLibTagService
         Iterable<EsLibTag> libTags =eslibTagRepository.search(boolQuery, pageRequest);
         pagesum= (int) eslibTagRepository.search(boolQuery, pageRequest).getTotalElements()+1;
         return libTags;
+    }
+    public int updateLibTags(EsLibTag libTag)
+    {
+        int status=esLibTagMapper.updateLibTag(libTag);
+        if(status>0) {eslibTagRepository.save(libTag);}
+        return status;
+    }
+    public int creatLibTags(EsLibTag libTag)
+    {
+        int status=esLibTagMapper.createLibTag(libTag);
+        if(status>0) { eslibTagRepository.save(libTag);}
+        return status;
+    }
+    public JSONObject deleteLibTags(long tagId)
+    {
+         JSONObject data=new JSONObject();
+         JSONArray array=new JSONArray();
+         EsLibTag libTag=esLibTagMapper.selectTagByTagId(tagId);
+         if(libTag.getParentTagId()!=0)
+         {
+             JSONObject tagName=new JSONObject();
+             if(esLibTagMapper.deleteLibTag(tagId)>0)
+                 eslibTagRepository.deleteById(tagId);
+             tagName.put("tagName",libTag.getTagName());
+             array.add(tagName);
+         }
+         else
+         {
+             esLibTagMapper.deleteLibTag(tagId);
+             List<EsLibTag> libTags=esLibTagMapper.selectTagsByParentTagId(libTag.getTagId());
+             JSONObject parentTagName=new JSONObject();
+             parentTagName.put("parentTagName",libTag.getTagName());
+             array.add(parentTagName);
+             libTags.forEach(tags->{
+                 JSONObject tagName=new JSONObject();
+                 if(esLibTagMapper.deleteLibTag(tags.getTagId())>0)
+                     eslibTagRepository.deleteById(tagId);
+                 tagName.put("tagName",tags.getTagName());
+                 array.add(tagName);
+             });
+         }
+         data.put("deleteTagList",array);
+         return data;
     }
     public JSONObject getAllTagsWithChildrenTag() {
         List<LibTag> parentTags = getAllParentTag();

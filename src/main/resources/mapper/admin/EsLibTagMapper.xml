@@ -9,4 +9,33 @@
     <select id="selectTagName" resultType="java.lang.String">
         select GROUP_CONCAT(lib_tag_name ORDER BY lib_tag_name DESC SEPARATOR '') from sq_lib_tag WHERE FIND_IN_SET(lib_tag_id,getTagParent(#{id}))
     </select>
+    <select id="selectTagsByParentTagId" resultMap="tag">
+        select
+        <include refid="base_column"/>
+        from sq_lib_tag where parent_tag_id=#{parentTagId}
+    </select>
+    <select id="selectTagByTagId" resultMap="tag">
+        select
+        <include refid="base_column"/>
+        from sq_lib_tag where lib_tag_id=#{tagId}
+    </select>
+    <select id="selectParentTags" resultMap="tag">
+        select * from sq_lib_tag where parent_tag_id=0
+    </select>
+    <insert id="createLibTag" useGeneratedKeys="true" keyProperty="tagId" parameterType="com.jxust.qq.superquestionlib.dto.admin.EsLibTag">
+        insert into sq_lib_tag(lib_tag_name,parent_tag_id)
+         value (#{libTag.tagName},#{libTag.parentTagId})
+    </insert>
+    <update id="updateLibTag">
+        update sq_lib_tag set lib_tag_name=#{libTag.tagName},parent_tag_id=#{libTag.parentTagId} where
+        lib_tag_id=#{libTag.tagId}
+    </update>
+    <delete id="deleteLibTag">
+        delete from sq_lib_tag where lib_tag_id=#{tagId}
+    </delete>
+    <resultMap id="tag" type="com.jxust.qq.superquestionlib.dto.admin.EsLibTag">
+        <id property="tagId" column="lib_tag_id"/>
+        <result property="tagName" column="lib_tag_name" />
+        <result property="parentTagId" column="parent_tag_id"/>
+    </resultMap>
 </mapper>

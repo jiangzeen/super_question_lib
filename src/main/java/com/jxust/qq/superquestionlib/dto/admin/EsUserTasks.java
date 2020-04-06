@@ -44,14 +44,14 @@ public class EsUserTasks
     String questionLibName;
     @JsonProperty("questionNumbers")
     int questionNumbers;
-    @Field(type = FieldType.Date)
+    @Field(index = true,type = FieldType.Date)
     @JsonProperty("createTime")
-    Date creatTime;
+    Date createTime;
     @JsonProperty("endTime")
-    @Field(type = FieldType.Date)
+    @Field(index = true,type = FieldType.Date)
     Date endTime;
     @JsonProperty("scheduleTime")
-    @Field(type = FieldType.Date)
+    @Field(index = true,type = FieldType.Date)
     Date scheduleTime;
     @JsonProperty("expired")
     int expired;

@@ -23,10 +23,10 @@ public class AdminitratorService
         this.mapper = mapper;
     }
     //获取Token
-    public String getToken(Adminitrator adminitrator,int minutes)
+    public String getToken(Adminitrator adminitrator,int hour)
     {
         Date start=new Date();
-        long currentTime=System.currentTimeMillis()+60*60*1000*minutes;   //一小时有效时间
+        long currentTime=System.currentTimeMillis()+60*60*1000*hour;   //一小时有效时间
         Date end=new Date(currentTime);
         String token="";
         token= JWT.create().withAudience(String.valueOf(adminitrator.getAdminId())).withIssuedAt(start).withExpiresAt(end)

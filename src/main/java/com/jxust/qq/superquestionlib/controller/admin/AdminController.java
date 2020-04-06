@@ -2,6 +2,7 @@ package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.JWT;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.component.OnlineCounter;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminPassToken;
 import com.jxust.qq.superquestionlib.dto.Result;
@@ -14,7 +15,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
 
@@ -25,8 +25,10 @@ public class AdminController
     @Autowired
     private RedisTemplate<String,String> redisTemplate;
     private final AdminitratorService adminitratorService;
-    public AdminController(AdminitratorService adminitratorService) {
+    private final OnlineCounter onlineCounter;
+    public AdminController(AdminitratorService adminitratorService, OnlineCounter onlineCounter) {
         this.adminitratorService = adminitratorService;
+        this.onlineCounter = onlineCounter;
     }
     //查找所有
     @AdminLoginToken
@@ -69,7 +71,7 @@ public class AdminController
             if(adminitrator2.getAdminPassword().equals(adminitratorService.encrypt(adminitrator1.getAdminName()
                     ,adminitrator1.getAdminPassword()))) {
                 adminitratorService.modifyLoginTime(adminitrator1.getAdminName());
-                String token=adminitratorService.getToken(adminitrator2,60);
+                String token=adminitratorService.getToken(adminitrator2,1);
                 redisTemplate.opsForValue().set(String.valueOf(adminitrator2.getAdminId()),token);
                 data.put("token",token);
                 data.put("lastLoginTime",new Date());
@@ -125,7 +127,7 @@ public class AdminController
         JSONObject data = new JSONObject();
         data.put("adminName",adminName);
         int status=adminitratorService.deleteByAdminName(adminName);
-         if(status<0) return Result.SERVERERROR();
+         if(status<=0) return Result.SERVERERROR();
          else return  Result.SUCCESS("成功",data);
     }
     //删除管理员账号
@@ -138,8 +140,18 @@ public class AdminController
         if(adminitrator!=null)
         data.put("adminName",adminitrator.getAdminName());
         int status=adminitratorService.deleteById(id);
-        if(status<0) return Result.SERVERERROR();
+        if(status<=0) return Result.SERVERERROR();
         else return  Result.SUCCESS("成功",data);
+    }
+    //返回在线人数 统计10分钟内活跃的人数
+    @AdminLoginToken
+    @GetMapping("/admin/onlineCount")
+    public Result getOnlineCount()
+    {
+        JSONObject data = new JSONObject();
+        int count=onlineCounter.getOnlineCount();
+        data.put("count",count);
+        return Result.SUCCESS("成功",data);
     }
 }
 

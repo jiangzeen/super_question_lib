@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.component.OnlineCounter;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminPassToken;
 import com.jxust.qq.superquestionlib.dto.admin.Adminitrator;
@@ -23,6 +24,8 @@ public class AdminInterceptor implements HandlerInterceptor
 {
     @Autowired
     private RedisTemplate<String,String> redisTemplate;
+    @Autowired
+    private OnlineCounter onlineCounter;
     @Autowired
     private AdminitratorService adminitratorService;
     /**
@@ -81,7 +84,7 @@ public class AdminInterceptor implements HandlerInterceptor
                 {
                    throw new RuntimeException("token已被销毁");
                 }
-
+            onlineCounter.insertToken(token);
         }
         return true;
     }

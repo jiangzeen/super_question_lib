@@ -1,5 +1,6 @@
 package com.jxust.qq.superquestionlib.service.admin;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.EsUserMapper;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.UtilMapper;
@@ -57,8 +58,9 @@ public class EsUserService
                 .minDocCount(0).timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT+:08:00")))
                 .extendedBounds(new ExtendedBounds(maps.get("startTime"),maps.get("endTime")));
         QueryBuilder bool=QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery("userLastLoginTime")
-                .gte(new Date().getTime()-period*24*3600-8*3600)
-                .lte(new Date().getTime()-8*3600));
+                .timeZone("UTC")
+                .gte(new Date().getTime()-period*24*3600*1000-8*3600*1000)
+                .lte(new Date().getTime()));
         SearchQuery searchQuery=new NativeSearchQueryBuilder().withQuery(bool).addAggregation(histogramAggregationBuilder)
                 .build();
         pagesum= (int) User.search(searchQuery).getTotalElements();
@@ -69,6 +71,33 @@ public class EsUserService
         for(Histogram.Bucket bucket : terms.getBuckets())
         {
                userCounts.add(new userCount(bucket.getDocCount(),bucket.getKeyAsString()));
+        }
+        data.put("userCounts",userCounts);
+        data.put("pagesum",pagesum);
+        return data;
+    }
+    //聚合按时间查找
+    public JSONObject increaseAggregationBuilder(int period)
+    {
+        Map<String,String> maps= DateFormat.getTime(period-1);
+        DateHistogramAggregationBuilder histogramAggregationBuilder= AggregationBuilders.dateHistogram("day")
+                .dateHistogramInterval(DateHistogramInterval.DAY).field("userCreateTime").format("yyyy-MM-dd")
+                .minDocCount(0).timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT+:08:00")))
+                .extendedBounds(new ExtendedBounds(maps.get("startTime"),maps.get("endTime")));
+        QueryBuilder bool=QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery("userCreateTime")
+                .timeZone("UTC")
+                .gte(new Date().getTime()-period*24*3600*1000-8*3600*1000)
+                .lte(new Date().getTime()));
+        SearchQuery searchQuery=new NativeSearchQueryBuilder().withQuery(bool).addAggregation(histogramAggregationBuilder)
+                .build();
+        pagesum= (int) User.search(searchQuery).getTotalElements();
+        AggregatedPage<EsUser> search=(AggregatedPage<EsUser>)User.search(searchQuery);
+        JSONObject data=new JSONObject();
+        ArrayList<userCount> userCounts=new ArrayList<>();
+        Histogram terms=(Histogram)search.getAggregations().getAsMap().get("day");
+        for(Histogram.Bucket bucket : terms.getBuckets())
+        {
+            userCounts.add(new userCount(bucket.getDocCount(),bucket.getKeyAsString()));
         }
         data.put("userCounts",userCounts);
         data.put("pagesum",pagesum);
@@ -122,7 +151,7 @@ public class EsUserService
         }
         if(sex==1||sex==0)
         {
-        MatchQueryBuilder sexQuery = QueryBuilders.matchQuery("sex", sex);
+        MatchQueryBuilder sexQuery = QueryBuilders.matchQuery("userSex", sex);
         boolQuery.filter(sexQuery);
        }
         //校信息查询
@@ -136,7 +165,7 @@ public class EsUserService
             sort=Sort.by(Sort.Direction.DESC,"userLastLoginTime");
         else
             sort=Sort.by(Sort.Direction.ASC,"userLastLoginTime");
-        PageRequest pageRequest=PageRequest.of(pagenum-1,pagesize);
+        PageRequest pageRequest=PageRequest.of(pagenum-1,pagesize,sort);
         pagesum=User.search(boolQuery,pageRequest).getTotalElements();
         Iterable<EsUser> iterables=User.search(boolQuery,pageRequest);
         Iterator<EsUser> iterator=iterables.iterator();

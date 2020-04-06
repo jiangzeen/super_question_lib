@@ -9,7 +9,6 @@ import com.jxust.qq.superquestionlib.service.admin.EsLibTagService;
 import com.jxust.qq.superquestionlib.service.admin.EsQuestionLibService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Date;
 import java.util.List;
 
@@ -54,6 +53,7 @@ public class EsQuestionLibController
         else
             return Result.FAILD(data);
     }
+
     @AdminLoginToken
     @PostMapping("admin/questionLib/conditionQuery")
     public Result conditionQuery(@RequestParam("queryString") String queryString,

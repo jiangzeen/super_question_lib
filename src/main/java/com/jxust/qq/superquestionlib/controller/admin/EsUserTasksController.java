@@ -63,7 +63,7 @@ public class EsUserTasksController
     {
         List<EsUserTasks> esUserTasksList=userTasksService.boolTasks(queryString,pagenum,
                 pagesize,
-                questionNumBegin,questionNumEnd,expired,hasCompleteNumbers);
+                questionNumBegin,questionNumEnd,expired,hasCompleteNumbers,dir);
         JSONObject data=new JSONObject();
         data.put("esUserTasks",esUserTasksList);
         data.put("pagesum", EsHotExamService.pagesum);
@@ -100,8 +100,8 @@ public class EsUserTasksController
                 userTasks.setUserName("");
             if(userTasks.getMark()==null)
                 userTasks.setMark("");
-            if(userTasks.getCreatTime()==null)
-                userTasks.setCreatTime(new Date());
+            if(userTasks.getCreateTime()==null)
+                userTasks.setCreateTime(new Date());
             if(userTasks.getEndTime()==null)
                 userTasks.setEndTime(new Date());
             userTasks.setScheduleTime(new Date());
@@ -124,8 +124,8 @@ public class EsUserTasksController
         userTasks.setUserName("");
         if(userTasks.getMark()==null)
         userTasks.setMark("");
-        if(userTasks.getCreatTime()==null)
-        userTasks.setCreatTime(new Date());
+        if(userTasks.getCreateTime()==null)
+        userTasks.setCreateTime(new Date());
         if(userTasks.getEndTime()==null)
         userTasks.setEndTime(new Date());
         userTasks.setScheduleTime(new Date());

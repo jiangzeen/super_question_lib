@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
 @Slf4j
 @Service
 public class EsUserTasksService
@@ -71,7 +70,7 @@ public class EsUserTasksService
     //true 降序 false 升序
     public ArrayList<EsUserTasks> boolTasks(String queryStrings, int pagenum, int pagesize, int questionNumBegin
             ,int questionNumEnd
-    ,int expired,int hasCompleteNumbers)
+    ,int expired,int hasCompleteNumbers,boolean dir)
     {
         BoolQueryBuilder boolQuery=QueryBuilders.boolQuery();
         //按字符查询
@@ -93,7 +92,10 @@ public class EsUserTasksService
 
         boolQuery.filter(numQuery);
         Sort sort;
+        if(dir==true)
         sort=Sort.by(Sort.Direction.DESC,"endTime");
+        else
+            sort=Sort.by(Sort.Direction.ASC,"endTime");
         PageRequest pageRequest=PageRequest.of(pagenum-1,pagesize,sort);
         pagesum= (int) userTasksRepository.search(boolQuery,pageRequest).getTotalElements();
         Iterable<EsUserTasks> iterables=userTasksRepository.search(boolQuery,pageRequest);
@@ -130,8 +132,8 @@ public class EsUserTasksService
             if(questionLibRepository.findById((long)userTasks.getQuestionLibId()).isPresent()) {
                 questionLib=questionLibRepository.findById((long)userTasks.getQuestionLibId()).get();
                 userTasks.setQuestionLibName(questionLib.getQuestionLibName());
-                userTasksRepository.save(userTasks);
             }
+            userTasksRepository.save(userTasks);
         }
         return status;
     }
@@ -146,8 +148,8 @@ public class EsUserTasksService
             if(questionLibRepository.findById((long)userTasks.getQuestionLibId()).isPresent()) {
                 questionLib=questionLibRepository.findById((long)userTasks.getQuestionLibId()).get();
                 userTasks.setQuestionLibName(questionLib.getQuestionLibName());
-                userTasksRepository.save(userTasks);
             }
+            userTasksRepository.save(userTasks);
         }
         return status;
     }
