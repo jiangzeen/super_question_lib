@@ -17,7 +17,7 @@ import java.util.Date;
 public class EsQuestionLib
 {
     @Id
-    @JsonProperty("id")
+    @JsonProperty("questionLibId")
     private long questionLibId;
     @JsonProperty("questionLibLevel")
     private int questionLibLevel;
@@ -27,7 +27,7 @@ public class EsQuestionLib
     @JsonProperty("questionLibUrl")
     private String questionLibUrl;
     //1代表为私有 0代码并非私有
-    @JsonProperty("questionLibPrivate")
+    @JsonProperty("hasPrivate")
     private int hasPrivate;
     @Field(type = FieldType.Date)
     @JsonProperty("questionLibCreateTime")

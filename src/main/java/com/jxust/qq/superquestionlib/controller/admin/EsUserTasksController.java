@@ -75,7 +75,7 @@ public class EsUserTasksController
             return Result.FAILD(data);
     }
     @AdminLoginToken
-    @GetMapping("admin/userTasks/deleteById")
+    @GetMapping("admin/userTasks/deleteById/{id}")
     public Result deleteById(@PathVariable("id")int id)
     {
         int status=userTasksService.deleteById(id);

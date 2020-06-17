@@ -2,6 +2,7 @@ package com.jxust.qq.superquestionlib.controller.admin;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminLoginToken;
+import com.jxust.qq.superquestionlib.dao.mapper.admin.interfaces.AdminPassToken;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.admin.EsQuestion;
 import com.jxust.qq.superquestionlib.dto.admin.EsUser;
@@ -26,6 +27,13 @@ public class EsUserController
     public EsUserController(EsUserService userService, UserService userService2) {
         this.userService = userService;
         this.userService2 = userService2;
+    }
+    @AdminPassToken
+    @RequestMapping("test")
+    public String test()
+    {
+        System.out.println(userService2.encrypt("root","123456"));
+        return userService2.encrypt("root","123456");
     }
     @AdminLoginToken
     @PostMapping("admin/user/fuzzyQuery")
@@ -64,7 +72,8 @@ public class EsUserController
     public Result conditionQuery(@RequestParam("queryString") String queryString, @RequestParam("dir") boolean dir,
                                  @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize,
                                  @RequestParam("schoolInfoId") int schoolInfoId, @RequestParam("sex") int sex,
-                                 @RequestParam("creatTimeBegin") String createTimeBegin,@RequestParam("creatTimeEnd") String createTimeEnd)
+                                 @RequestParam("createTimeBegin") String createTimeBegin
+            ,@RequestParam("createTimeEnd") String createTimeEnd)
     {
         List<EsUser> esUserList=userService.boolHotUser(queryString,dir,pagenum,
                 pagesize,
@@ -72,7 +81,7 @@ public class EsUserController
                 DateFormat.DateFormatParse(createTimeBegin),DateFormat.DateFormatParse(createTimeEnd));
         JSONObject data=new JSONObject();
         data.put("esUsers",esUserList);
-        data.put("pagesum",EsHotExamService.pagesum);
+        data.put("pagesum",EsUserService.pagesum);
         if(!esUserList.isEmpty())
         {
             return Result.SUCCESS(data);
@@ -128,6 +137,14 @@ public class EsUserController
         else{
             return Result.SUCCESS(data);
         }
+    }
+    @AdminLoginToken
+    @GetMapping("admin/user/count")
+    public Result count()
+    {
+        JSONObject data=new JSONObject();
+        data.put("count",userService.count());
+        return Result.SUCCESS(data);
     }
     //修改
     @AdminLoginToken

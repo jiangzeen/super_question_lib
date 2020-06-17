@@ -47,7 +47,6 @@ public class EsUserService
     public EsUserService(UtilMapper utilMapper, EsUserMapper userMapper) {
         this.utilMapper = utilMapper;
         this.userMapper = userMapper;
-
     }
     //聚合按时间查找
     public JSONObject aggregationBuilder(int period)
@@ -145,8 +144,8 @@ public class EsUserService
         //过滤条件
         if(createTimeBegin!=null&&createTimeEnd!=null) {
             RangeQueryBuilder startTimeQuery = QueryBuilders.rangeQuery("userCreateTime")
-                    .timeZone("UTC").gte(createTimeBegin.getTime() - 8 * 3600 * 1000)
-                    .lte(createTimeEnd.getTime() - 8 * 3600 * 1000);
+                    .timeZone("UTC").gte(createTimeBegin.getTime())
+                    .lte(createTimeEnd.getTime());
             boolQuery.filter(startTimeQuery);
         }
         if(sex==1||sex==0)
@@ -221,6 +220,10 @@ public class EsUserService
             User.save(user);
         }
         return status;
+    }
+    public long count()
+    {
+        return User.count();
     }
 }
 @Data

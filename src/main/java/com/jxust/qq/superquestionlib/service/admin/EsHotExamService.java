@@ -104,7 +104,7 @@ public class EsHotExamService {
         }
         //过滤条件
         if(startTimeBegin!=null&&startTimeEnd!=null) {
-            RangeQueryBuilder startTimeQuery = QueryBuilders.rangeQuery("examStartTime").timeZone("UTC").gte(startTimeBegin.getTime() - 3600 * 8 * 1000).lte(startTimeEnd.getTime() - 3600 * 8 * 1000);
+            RangeQueryBuilder startTimeQuery = QueryBuilders.rangeQuery("examStartTime").timeZone("UTC").gte(startTimeBegin.getTime()).lte(startTimeEnd.getTime());
             boolQuery.filter(startTimeQuery);
         }
         //分页

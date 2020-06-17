@@ -60,21 +60,25 @@ public class DefaultBreakQuestion {
     public List<Question> breakQuestion() throws IllegalArgumentException, IOException{
         assert filepath != null;
         String text = QuestionBreakUtil.init(filepath);
+
         List<QuestionPoint> pointList = compileTitle(text);
         List<Question> questionList = new ArrayList<>();
         pointList.forEach(point -> {
             switch (point.typeEnum) {
                 case TYPEONE:
+                    System.out.println("1");
                     questionList.addAll(breakTypeOneQuestion(point));
                     break;
                 case TYPETWO:
+                    System.out.println("2");
                     questionList.addAll(breakTypeTwoQuestion(point));
                     break;
                 case TYPETHREE:
+                    System.out.println("3");
                     questionList.addAll(breakTypeThreeQuestion(point));
                     break;
                 case TYPEFOUR:
-
+                    System.out.println("4");
                     break;
                 default:
                     break;
@@ -316,7 +320,9 @@ public class DefaultBreakQuestion {
     private List<QuestionPoint> compileTitle(String text) {
         Matcher titleMatcher = titleRegex.matcher(text);
         List<QuestionPoint> points = new ArrayList<>();
+        System.out.println(text);
         while (titleMatcher.find()) {
+            System.out.println("hello world");
             String titleName = titleMatcher.group();
             QuestionPoint point = new QuestionPoint();
             int start = titleMatcher.start();

@@ -1,30 +1,13 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.EsQuestionLibMapper">
-
-    <sql id="base_column">
-id,user_name,mark,question_lib_id,question_numbers,creat_time,end_time,schedule_time,expired,has_completed_number
-    </sql>
-    <insert id="createQuestionLib" useGeneratedKeys="true" keyProperty="questionLibId" parameterType="com.jxust.qq.superquestionlib.dto.admin.EsQuestionLib">
-      insert into sq_question_lib(question_lib_level,question_lib_name,question_lib_private,question_lib_create_time,question_lib_tag_id,question_lib_mark,question_lib_url)
-                            value(#{questionLib.questionLibLevel},#{questionLib.questionLibName}
-                            ,#{questionLib.hasPrivate},#{questionLib.questionLibCreateTime}
-                            ,#{questionLib.questionLibTagId}
-                            ,#{questionLib.questionLibMark},#{questionLib.questionLibUrl})
-    </insert>
-    <update id="updateQuestionLib">
-        update sq_question_lib set
-        question_lib_level=#{questionLib.questionLibLevel},
-        question_lib_name=#{questionLib.questionLibName},
-        question_lib_private=#{questionLib.hasPrivate},
-        question_lib_create_time=#{questionLib.questionLibCreateTime},
-        question_lib_tag_id=#{questionLib.questionLibTagId},
-        question_lib_mark=#{questionLib.questionLibMark},
-        question_lib_url=#{questionLib.questionLibUrl}
-        where question_lib_id=#{questionLib.questionLibId}
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.EsUserQuestionLibMapper">
+    <update id="updateUserQuestionLib">
+        update sq_user_question_lib set
+        user_name=#{userQuestionLib.userName},private_name=#{userQuestionLib.privateName},question_lib_id=#{userQuestionLib.questionLibId},question_lib_importance=#{userQuestionLib.questionLibImportance}
+        where id=#{userQuestionLib.id}
     </update>
     <delete id="deleteById">
-        delete from sq_question_lib where question_lib_id=#{id}
+        delete from sq_user_question_lib where id=#{id}
     </delete>
 </mapper>

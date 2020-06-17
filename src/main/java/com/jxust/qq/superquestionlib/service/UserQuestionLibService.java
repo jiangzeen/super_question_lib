@@ -19,7 +19,6 @@ public class UserQuestionLibService {
         assert username != null;
         return userQuestionLibMapper.selectByLibIdAndUsername(username, id) != null;
     }
-
     public void saveUserLibRecord(String username, int libId, String privateName) {
         UserQuestionLib userLib = new UserQuestionLib();
         userLib.setUsername(username);

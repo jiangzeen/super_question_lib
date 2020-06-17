@@ -1,0 +1,23 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.admin.EsUserQuestionHistoryMapper">
+    <select id="selectHistoriesByUsername" resultType="com.jxust.qq.superquestionlib.dto.admin.EsUserQuestionHistory">
+        select
+               history.id as id,
+               history.question_lib_id as questionLibId,
+               history.user_name as username,
+               history.result as result,
+               history.submit_time as submitTime,
+               history.question_id as questionId
+        from sq_user_question_history as history
+        where history.user_name = #{username} limit #{pagenum},#{pagesize}
+</select>
+    <delete id="deleteByHistoryId">
+        delete from sq_user_question_history
+        where id = #{id}
+    </delete>
+    <select id="counts" resultType="java.lang.Integer">
+        select count(*) from sq_user_question_history as history where history.user_name = #{username}
+    </select>
+</mapper>

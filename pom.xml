@@ -20,6 +20,7 @@
 
     <dependencies>
         <!-- elasticSearch-->
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>

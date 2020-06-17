@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class EsSchoolInfoController
     }
     @AdminLoginToken
     @PostMapping("admin/schoolInfo/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString,@Param("schoolParentId")int schoolParentId)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString,@RequestParam("schoolParentId")int schoolParentId)
     {
         Iterable<EsSchoolInfo> esSchoolInfos=schoolInfoService.boolQuery(queryString,schoolParentId);
         ArrayList<info> infos=new ArrayList<>();

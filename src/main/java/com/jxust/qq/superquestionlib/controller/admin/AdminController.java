@@ -71,7 +71,7 @@ public class AdminController
             if(adminitrator2.getAdminPassword().equals(adminitratorService.encrypt(adminitrator1.getAdminName()
                     ,adminitrator1.getAdminPassword()))) {
                 adminitratorService.modifyLoginTime(adminitrator1.getAdminName());
-                String token=adminitratorService.getToken(adminitrator2,1);
+                String token=adminitratorService.getToken(adminitrator2,6);
                 redisTemplate.opsForValue().set(String.valueOf(adminitrator2.getAdminId()),token);
                 data.put("token",token);
                 data.put("lastLoginTime",new Date());
@@ -143,7 +143,7 @@ public class AdminController
         if(status<=0) return Result.SERVERERROR();
         else return  Result.SUCCESS("成功",data);
     }
-    //返回在线人数 统计10分钟内活跃的人数
+    //返回在线人数 统计1分钟内活跃的人数
     @AdminLoginToken
     @GetMapping("/admin/onlineCount")
     public Result getOnlineCount()
