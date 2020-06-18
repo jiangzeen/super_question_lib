@@ -6,9 +6,27 @@
         user_name, private_name, question_lib_id, question_lib_importance
     </sql>
     <insert id="insertUserLib" useGeneratedKeys="true" parameterType="com.jxust.qq.superquestionlib.dto.UserQuestionLib">
-        insert into sq_user_question_lib(user_name, private_name, question_lib_id, question_lib_importance)
-        value (#{userLib.username}, #{userLib.privateName}, #{userLib.questionLibId}, #{userLib.questionLibImportance})
+        insert into sq_user_question_lib(user_name, private_name, private_mark, question_lib_id, question_lib_importance)
+        value (#{userLib.username}, #{userLib.privateName}, #{userLib.privateMark}, #{userLib.questionLibId}, #{userLib.questionLibImportance})
     </insert>
+
+    <update id="updateQuestionLib">
+        update sq_user_question_lib
+               set
+               <if test="info.name != null">
+                    private_name=#{info.name},
+               </if>
+               <if test="info.mark != null">
+                   private_mark=#{info.mark}
+               </if>
+        where question_lib_id=#{info.id} and user_name=#{username}
+    </update>
+
+    <delete id="deleteById">
+        delete from sq_user_question_lib
+        where id=#{userLibId}
+    </delete>
+
     <select id="selectByLibIdAndUsername" resultType="com.jxust.qq.superquestionlib.dto.UserQuestionLib">
         select * from sq_user_question_lib where user_name = #{username} and question_lib_id = #{libId}
     </select>
@@ -17,7 +35,10 @@
         sq_user_lib.question_lib_id,
         sq_user_lib.user_name,
         sq_user_lib.private_name,
+        sq_user_lib.private_mark,
+        sq_user_lib.private_name,
         sq_user_lib.question_lib_importance,
+        sq_lib.question_lib_name,
         sq_tag.lib_tag_name
         from sq_user_question_lib sq_user_lib, sq_question_lib sq_lib
         left join sq_lib_tag sq_tag on sq_lib.question_lib_tag_id = sq_tag.lib_tag_id
@@ -32,18 +53,25 @@
             quest.question_id,
             quest.question_content,
             quest.question_type_id,
-            sq_user_lib.question_lib_id
+            sq_user_lib.question_lib_id,
+            sq_user_lib.private_mark
         from sq_user_question_lib sq_user_lib, sq_question quest
         where sq_user_lib.question_lib_id = #{libId} and sq_user_lib.user_name=#{username}
               and sq_user_lib.question_lib_id = quest.question_lib_id
-              <if test="typeId != null">
-                  and quest.question_type_id = #{typeId}
-              </if>
     </select>
+
+    <select id="selectUserLibsNumbers" resultType="java.lang.Integer">
+        select count(*)
+        from sq_user_question_lib
+        where user_name=#{username}
+    </select>
+
     <resultMap id="user_lib_info" type="com.jxust.qq.superquestionlib.vo.QuestionLibVO">
         <result column="user_name"  property="username"/>
-        <result column="private_name" property="libName"/>
+        <result column="question_lib_name" property="libName"/>
         <result column="lib_tag_name" property="typeName"/>
+        <result column="private_name" property="privateName"/>
+        <result column="private_mark" property="mark"/>
         <result column="question_lib_importance" property="importance"/>
         <result column="question_lib_id" property="libId"/>
         <collection property="questions" ofType="com.jxust.qq.superquestionlib.vo.QuestionVO">

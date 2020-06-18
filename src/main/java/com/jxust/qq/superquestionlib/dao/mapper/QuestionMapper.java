@@ -23,4 +23,7 @@ public interface QuestionMapper {
     List<Integer> selectQuestionByLibId(Map<String, Object> params);
 
     List<QuestionVO> selectQuestionList(List<Integer> ids);
+
+    List<QuestionVO> selectQuestionsByIdAndName(@Param("libId") int libId,
+                                                @Param("username") String username);
 }

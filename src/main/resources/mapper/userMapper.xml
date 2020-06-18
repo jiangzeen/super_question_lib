@@ -73,5 +73,13 @@
             school_name as schoolName
         from sq_school_info
     </select>
+    <select id="selectSchoolByName" resultType="com.jxust.qq.superquestionlib.dto.SchoolInfo">
+        select
+            school_id as schoolId,
+            school_name as schoolName
+        from sq_school_info, sq_user
+        where sq_user.user_school_id = school_id
+        and sq_user.user_name = #{username}
+    </select>
 
 </mapper>    

@@ -22,6 +22,10 @@ public class Result {
         return new Result(200 ,"成功", data);
     }
 
+    public static Result SUCCESS() {
+        return new Result(200 ,"成功", null);
+    }
+
     public static Result SUCCESS(String message, Object data) {
         return new Result(200, message, data);
     }

@@ -57,7 +57,7 @@ public class QuestionCommonController {
     @PostMapping("/user/user_question/practice")
     public Result generatePractice(@RequestBody PaperAndPracticeVO vo) {
         String username = (String) SecurityUtils.getSubject().getPrincipal();
-        if (!libService.isUserLib(vo.getLibId(), username)) {
+        if (!libService.verifyLibId(vo.getLibId(), username)) {
             return Result.URINOTFOUND();
         }
         // 算法选择出需要得题库
@@ -82,7 +82,7 @@ public class QuestionCommonController {
     @GetMapping("/user/user_question/recent_to_practice")
     public Result generateRecentQuestions(@RequestParam("libId") int libId) {
         String username = (String) SecurityUtils.getSubject().getPrincipal();
-        if (!libService.isUserLib(libId, username)){
+        if (!libService.verifyLibId(libId, username)){
             return Result.URINOTFOUND();
         }
         List<JSONObject> data = userQuestionService.findQuestionByRecent(username, libId)
@@ -90,8 +90,11 @@ public class QuestionCommonController {
                     JSONObject json = new JSONObject();
                     json.put("content", question.getContent());
                     json.put("questionId", question.getQuestionId());
-                    json.put("lastPracticeTime",
-                            question.getLastPracticeTime().format(DateFormat.MINUTE_FORMATTER.getFormatter()));
+                    // lastPracticeTime可能为null
+                    if (question.getLastPracticeTime() != null) {
+                        json.put("lastPracticeTime",
+                                question.getLastPracticeTime().format(DateFormat.MINUTE_FORMATTER.getFormatter()));
+                    }
                     return json;
                 }).collect(Collectors.toList());
         return Result.SUCCESS(data);

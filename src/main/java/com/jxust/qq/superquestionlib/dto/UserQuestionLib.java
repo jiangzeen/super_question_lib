@@ -8,5 +8,6 @@ public class UserQuestionLib {
     private String username;
     private int questionLibId;
     private String privateName;
+    private String privateMark;
     private int questionLibImportance;
 }

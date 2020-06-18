@@ -7,12 +7,15 @@ import com.jxust.qq.superquestionlib.service.admin.EsHotExamService;
 import com.jxust.qq.superquestionlib.service.admin.EsQuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Service
+@RestController
 @Slf4j
 public class EsQuestionController
 {
@@ -22,7 +25,7 @@ public class EsQuestionController
         this.questionService = questionService;
     }
     @PostMapping("/admin/question/fuzzyQuery")
-    public Result fuzzyQuery(@Param("queryString") String queryString, @Param("pagenum") int pagenum, @Param("pagesize") int pagesize)
+    public Result fuzzyQuery(@RequestParam("queryString") String queryString, @RequestParam("pagenum") int pagenum, @RequestParam("pagesize") int pagesize)
     {
         List<EsQuestion> esQuestionList=questionService.matchQuestion(queryString,pagenum,pagesize);
         JSONObject data=new JSONObject();

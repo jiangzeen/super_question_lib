@@ -37,6 +37,7 @@ public class UserQuestionService {
             userQuestion.setRepetitions(0);
             return userQuestion;
         }).collect(Collectors.toList());
+        // todo 如果 userQuestionList为空..
         questionMapper.insertQuestion(userQuestionList);
     }
 

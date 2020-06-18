@@ -8,4 +8,5 @@ public class LibTag {
     private long tagId;
     private String tagName;
     private long parentTagId;
+    private String tagImgUrl;
 }

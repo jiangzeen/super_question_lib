@@ -12,7 +12,7 @@
         value (#{question.questionContent}, #{question.questionLevel}, #{question.questionLibId}, #{question.questionTypeId},
                #{question.rightTime}, #{question.wrongTime}, #{question.createTime}, #{question.lastModify}, #{question.keyword})
     </insert>
-    <update id="updateContentById" parameterType="java.lang.Integer">
+    <update id="updateContentById">
         update sq_question set question_content = #{content} where question_id = #{id}
     </update>
     <select id="selectUserInfoByQuestionId" resultType="com.jxust.qq.superquestionlib.vo.QuestionLibVO">
@@ -30,7 +30,7 @@
     </select>
     <select id="selectQuestionById" resultType="com.jxust.qq.superquestionlib.vo.QuestionVO">
         select
-               question_id as questionId,
+               question_id as id,
                question_content as content,
                question_lib_id as libId
         from sq_question
@@ -63,6 +63,15 @@
             <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
+    </select>
+
+    <select id="selectQuestionsByIdAndName" resultType="com.jxust.qq.superquestionlib.vo.QuestionVO">
+        select
+            question_id as id,
+            question_content as content
+        from sq_user_question
+        where user_name=#{username}
+        and question_lib_id=#{libId}
     </select>
 
 

@@ -21,4 +21,6 @@ public interface QuestionLibMapper {
     List<Integer> selectLibTypes(@Param("id")int libId);
 
     String selectUserName(int libId);
+
+    int deleteLibById(int libId);
 }

@@ -8,13 +8,11 @@
                                      question_lib_id,create_time,easiness,repetitions,
                                      intervals,last_practice_time)
         values
-        <if test="questions != null">
-            <foreach collection="questions" separator=","
-                     item="question">
-                (#{question.questionId}, #{question.username}, #{question.content}, #{question.libId},
-                #{question.createTime}, #{question.easiness}, #{question.repetitions},#{question.interval},null)
-            </foreach>
-        </if>
+        <foreach collection="list" separator=","
+                 item="question">
+            (#{question.questionId}, #{question.username}, #{question.content}, #{question.libId},
+            #{question.createTime}, #{question.easiness}, #{question.repetitions},#{question.interval},null)
+        </foreach>
     </insert>
 
     <update id="updateQuestionEasinessEtc">

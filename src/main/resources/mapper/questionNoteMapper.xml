@@ -19,6 +19,7 @@
 
     <select id="selectNoteByQuestionId" resultType="com.jxust.qq.superquestionlib.vo.QuestionNoteVO">
         select
+               note.note_id as noteId,
                note.user_name as username,
                sq_user.user_nick as nickname,
                note.note_content as content,
@@ -31,6 +32,7 @@
 
     <select id="selectNoteByOtherUsernameAndId" resultType="com.jxust.qq.superquestionlib.vo.QuestionNoteVO">
         select
+            note.note_id as noteId,
             note.user_name as username,
             su.user_nick as nickname,
             note.note_content as content,

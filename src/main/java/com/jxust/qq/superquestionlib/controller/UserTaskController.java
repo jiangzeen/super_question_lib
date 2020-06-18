@@ -43,7 +43,6 @@ public class UserTaskController {
         boolean access = libService.findByUsernameAndLibId(libId, username);
         if (access) {
             UserTasks task = taskService.addTask(username, info);
-            System.out.println(task);
             int min = task.getScheduleTime().getMinute() - task.getCreateTime().getMinute();
             // 开启定时任务
             int state = scheduleTaskService.executorTask(task.getId(), task.getMark(),

@@ -1,7 +1,7 @@
 package com.jxust.qq.superquestionlib.util;
 
-import org.apache.poi.ooxml.POIXMLDocument;
-import org.apache.poi.ooxml.extractor.POIXMLTextExtractor;
+import org.apache.poi.POIXMLDocument;
+import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-public class QuestionBreakUtil {
+public class DocxParseUtil {
 
     /**
      * 调用init初始化word文档为text

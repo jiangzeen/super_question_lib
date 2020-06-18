@@ -35,4 +35,6 @@ public interface UserMapper {
     SchoolInfo selectSchoolById(int schoolId);
 
     List<SchoolInfo> selectSchoolInfos();
+
+    SchoolInfo selectSchoolByName(String name);
 }

@@ -1,0 +1,42 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxust.qq.superquestionlib.dao.mapper.ExamMapper">
+
+    <insert id="insertExam" keyProperty="id" useGeneratedKeys="true">
+        insert into user_paper(user_name,
+                               question_lib_id, paper_limit_time, paper_start_time,
+                               paper_end_time, paper_result)
+        value (#{userPaper.username}, #{userPaper.questionLibId},#{userPaper.limitTime},
+               #{userPaper.startTime},#{userPaper.endTime}, #{userPaper.result})
+    </insert>
+
+    <update id="updateExamPaper">
+        update user_paper
+        set paper_end_time=#{endTime}, paper_result=#{result}
+        where id=#{id}
+    </update>
+
+    <select id="selectPapersByIdAndName" resultType="com.jxust.qq.superquestionlib.dto.UserPaper">
+        select
+               paper_start_time as startTime, paper_end_time as endTime, paper_limit_time as limitTime,
+               paper_result as result
+        from user_paper
+        where user_paper.user_name=#{username} and user_paper.question_lib_id=#{id}
+    </select>
+
+    <select id="findUserPaperById" resultType="java.lang.Integer">
+        select
+             question_lib_id
+        from user_paper
+        where id=#{id}
+    </select>
+
+    <select id="selectPaperById" resultType="com.jxust.qq.superquestionlib.dto.UserPaper">
+        select
+             paper_start_time as startTime, paper_end_time as endTime, paper_limit_time as limitTime,
+             paper_result as result
+        from user_paper
+        where id=#{id}
+    </select>
+</mapper>

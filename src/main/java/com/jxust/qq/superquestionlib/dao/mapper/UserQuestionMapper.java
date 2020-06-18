@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface UserQuestionMapper {
 
-    void insertQuestion(@Param("questions") List<UserQuestion> questions);
+    void insertQuestion(List<UserQuestion> questions);
 
     List<UserQuestion> selectRecentQuestion(String nowDay, String username, int libId);
 

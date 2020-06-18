@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/super_question_lib?serverTimezone=Asia/Shanghai&useSSL=true&useUnicode=true&characterEncoding=UTF-8"
+    url: "jdbc:mysql://120.78.159.212:3306/super_question_lib?serverTimezone=Asia/Shanghai&useSSL=true&useUnicode=true&characterEncoding=UTF-8"
     username: "root"
     password: "jiang.141201"
   mail:
@@ -8,7 +8,7 @@ spring:
     username: 1363646276@qq.com
     password: ueaxhybgheydhaih
   profiles:
-    include: redis
+    include: redis, elasticsearch
 mybatis:
   type-aliases-package: com.jxust.qq.superquestionlib.dao.mapper, com.jxust.qq.superquestionlib.dto
   mapper-locations: classpath:mapper/*.xml,mapper/admin/*.xml

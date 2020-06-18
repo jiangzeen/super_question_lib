@@ -4,12 +4,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dao.mapper.QuestionLibMapper;
 import com.jxust.qq.superquestionlib.dto.Question;
 import com.jxust.qq.superquestionlib.dto.QuestionLib;
+import com.jxust.qq.superquestionlib.util.parse.imp.DefaultQuestionParse;
 import com.jxust.qq.superquestionlib.vo.QuestionLibVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +52,7 @@ public class QuestionLibService {
         lib.setQuestionLibTagId(tagId);
         lib.setQuestionLibUrl(libUrl);
         lib.setQuestionLibMark(mark);
+        lib.setHasPrivate(hasPrivate);
         lib.setQuestionLibName(libName);
         libMapper.insertQuestionLib(lib);
         return (int) lib.getQuestionLibId();
@@ -96,11 +102,32 @@ public class QuestionLibService {
         return FILE_DIR + filename;
     }
 
+    public boolean deleteLibFile(String fileUrl) {
+        File libFile = new File(FILE_DIR + fileUrl);
+        if (libFile.exists()) {
+            return libFile.delete();
+        }
+        return false;
+    }
 
-    public JSONObject createQuestionByLibFile(String filename, int libId) throws IOException {
-        DefaultBreakQuestion bqUtil = new DefaultBreakQuestion(filename);
-        List<Question> cqList = bqUtil.breakQuestion();
+    /**
+     * 如果解析用户文件内容失败则抛出IO异常
+     * @param filename 文件名
+     * @param libId    题库Id
+     * @param hasAnswer 是否包含答案
+     * @return 解析出来的题库信息
+     * @throws IOException 解析失败
+     */
+    public JSONObject createQuestionByLibFile(String filename, int libId, boolean hasAnswer) throws IOException {
+        // DefaultBreakQuestion bqUtil = new DefaultBreakQuestion(filename);
+        DefaultQuestionParse questionParse = new DefaultQuestionParse(filename, hasAnswer);
+        List<Question> cqList = questionParse.parseQuestions();
+        JSONObject data = new JSONObject();
+        data.put("parseContent", questionParse.getContent());
         assert cqList != null;
+        if (cqList.size() == 0) {
+            return data;
+        }
         cqList.forEach(cq->{
             cq.setKeyword("");
             cq.setRightTime(0);
@@ -111,10 +138,8 @@ public class QuestionLibService {
             cq.setLastModify(LocalDateTime.now());
             questionService.insert(cq);
         });
-        JSONObject data = new JSONObject();
-        data.put("isComplete", bqUtil.isComplete());
         data.put("data", cqList);
-
+        data.put("libId", libId);
         return data;
     }
 
@@ -134,11 +159,17 @@ public class QuestionLibService {
         return 0;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED)
+    public boolean deleteLibById(int libId) {
+        return libMapper.deleteLibById(libId) > 0;
+    }
+
     public List<Integer> findQuestionType(int libId) {
         return libMapper.selectLibTypes(libId);
     }
 
-    public boolean isUserLib(int libId, String username) {
+    public boolean verifyLibId(int libId, String username) {
          return
                  username.equals(libMapper.selectUserName(libId));
     }

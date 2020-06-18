@@ -109,7 +109,7 @@ public class UserService {
             return null;
         }
         return filename;
-    }
+    } 
 
     public void modifyUserAvatar(String avatarUrl, String username) {
         mapper.updateUserAvatar(avatarUrl, username);
@@ -121,13 +121,20 @@ public class UserService {
         vo.setSex(user.getUserSex());
         vo.setAvatar(user.getUserAvatar());
         SchoolInfo schoolInfo = mapper.selectSchoolById(user.getUserSchoolId());
-        if (schoolInfo == null) {
-            vo.setSchoolInfo(null);
-        }else {
+        if (schoolInfo != null) {
+            vo.setSchoolId(schoolInfo.getSchoolId());
             vo.setSchoolInfo(schoolInfo.getSchoolName());
         }
         vo.setLastLoginTime(user.getUserLastLoginTime().
                 format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         return vo;
+    }
+
+    public List<SchoolInfo> schoolInfos() {
+        return mapper.selectSchoolInfos();
+    }
+
+    public SchoolInfo findSchool(String username) {
+        return mapper.selectSchoolByName(username);
     }
 }

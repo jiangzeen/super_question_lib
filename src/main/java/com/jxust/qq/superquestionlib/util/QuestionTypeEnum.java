@@ -25,4 +25,13 @@ public enum QuestionTypeEnum {
         this.id = id;
         this.mark = mark;
     }
+
+    public static QuestionTypeEnum findTypeById(int id) {
+        for (QuestionTypeEnum typeEnum : QuestionTypeEnum.values()) {
+            if (typeEnum.getId() == id) {
+                return typeEnum;
+            }
+        }
+        return null;
+    }
 }

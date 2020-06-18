@@ -39,38 +39,41 @@ public class UserQuestionController {
 
     /**
      * 获取用户空间数据
-     * @param username
-     * @param map
-     * @return
      */
-    @GetMapping("/user/user_lib/{username}/{page}")
-    public Result geUserQuestionLib(@PathVariable("username") String username, @RequestBody  Map<String, String> map,
-                                @PathVariable("page") int page) {
+    @GetMapping("/user/user_lib/{username}/1")
+    public Result geUserQuestionLib(@PathVariable("username") String username,@RequestParam("pageNum") int page,
+                                    @RequestParam(value = "typeId", required = false) String type,
+                                    @RequestParam("limit") int limit) {
         if (page < 1) {
             return Result.FAILD("page必须大于0");
         }
-        String type = map.get("typeId");
         Integer typeId = null;
         if (type != null) {
             typeId = Integer.valueOf(type);
         }
-        int limit = Integer.parseInt(map.get("limit"));
+        //
         List<QuestionLibVO> libVOS = userQuestionLibService.findUserLibByUsername(username, typeId, page, limit);
-        return Result.SUCCESS(libVOS);
+        // 获取总数
+        int total = userQuestionLibService.findUserLibTotals(username);
+        JSONObject data = new JSONObject();
+        data.put("total", total);
+        data.put("libList", libVOS);
+        return Result.SUCCESS(data);
     }
 
     /**
      * 获取到某一个题库的全部题目信息
-     * @param map 指定题目的类型如 选择题->1 填空题->2等
+     * @param type 指定题目的类型如 选择题->1 填空题->2等
      * @return questionLibVO
      */
     @GetMapping("/user/user_lib/details/{username}/{libId}")
-    public Result getUserLibQuestions(@PathVariable String username, @PathVariable int libId, @RequestBody Map<String, String> map) {
-        Integer type = null;
-        if (map.get("typeId") != null) {
-            type = Integer.valueOf(map.get("typeId"));
+    public Result getUserLibQuestions(@PathVariable String username, @PathVariable int libId,
+                                      @RequestParam(value = "typeId", required = false) String type) {
+        Integer typeId = null;
+        if (type != null) {
+            typeId = Integer.valueOf(type);
         }
-        QuestionLibVO libVO = userQuestionLibService.findQuestionsByUsernameAndId(username, libId, type);
+        QuestionLibVO libVO = userQuestionLibService.findQuestionsByUsernameAndId(username, libId, typeId);
         return Result.SUCCESS(libVO);
     }
 
@@ -90,7 +93,7 @@ public class UserQuestionController {
     public Result submitQuestion(@RequestBody Map<String, String> map) {
         String username = (String) SecurityUtils.getSubject().getPrincipal();
         if (!username.equals(map.get("username"))) {
-            return Result.FAILD("用户名不一致, 无权限提交");
+            return Result.HASAUTH(null);
         }
         int id = Integer.parseInt(map.get("questionId"));
         String result = map.get("result");
@@ -99,9 +102,9 @@ public class UserQuestionController {
     }
 
     @GetMapping("/user/user_question/submit_list")
-    public Result submitQuestionList(@RequestBody Map<String, String> map) {
+    public Result submitQuestionList(@RequestParam("libId") String libId) {
         String username = (String) SecurityUtils.getSubject().getPrincipal();
-        int lId = Integer.parseInt(map.get("libId"));
+        int lId = Integer.parseInt(libId);
         List<UserQuestionHistoryVO> data = userQuestionHistoryService.
                 findHistoriesByLibIdAndUsername(username, lId);
         return Result.SUCCESS(data);

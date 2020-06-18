@@ -5,20 +5,19 @@ import com.jxust.qq.superquestionlib.dto.Question;
 import com.jxust.qq.superquestionlib.dto.Result;
 import com.jxust.qq.superquestionlib.dto.User;
 import com.jxust.qq.superquestionlib.service.*;
+import com.jxust.qq.superquestionlib.vo.LibSimpleInfoVO;
 import com.jxust.qq.superquestionlib.vo.QuestionLibVO;
 import com.jxust.qq.superquestionlib.vo.QuestionVO;
 import com.jxust.qq.superquestionlib.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 /**
  * question-lib 对用户上传题库进行分类,打散取出题目,题库文件保存等
@@ -49,32 +48,42 @@ public class QuestionLibController {
         this.userQuestionService = userQuestionService;
     }
 
+    @SuppressWarnings("unchecked")
     @PostMapping("/user/question_lib/create/{username}")
     public Result createLib(@PathVariable("username") String username, @RequestParam("question_file") MultipartFile file,
                             @RequestParam("tag_id") String tagId, @RequestParam("mark") String mark,
-                            @RequestParam("hasPrivate") String hasPrivate, @RequestParam("privateName") String privateName) {
+                            @RequestParam("hasAnswer") boolean hasAnswer, @RequestParam("hasPrivate") String hasPrivate,
+                            @RequestParam("privateName") String privateName) {
         String user = (String) SecurityUtils.getSubject().getPrincipal();
         if (!user.equals(username)) {
             return Result.PERMISSIONERROR();
         }
         String originName = file.getOriginalFilename();
         userLocal.set(username);
+        int libId, userLibId;
+        String saveUrl;
         try {
-            String saveUrl = questionLibService.saveOriginLibFile(file, username);
+            saveUrl = questionLibService.saveOriginLibFile(file, username);
             log.info("用户{}上传题库文件:{}", username, originName);
-            // TODO 开启事务处理,防止如果解析失败等情况出现
-            int libId = questionLibService.createQuestionLibByUser(username, originName, Integer.parseInt(tagId), saveUrl, mark, Integer.parseInt(hasPrivate));
-            userQuestionLibService.saveUserLibRecord(username, libId, privateName);
+            libId = questionLibService.createQuestionLibByUser(username, originName, Integer.parseInt(tagId), saveUrl, mark,
+                    Integer.parseInt(hasPrivate));
+            userLibId = userQuestionLibService.saveUserLibRecord(username, libId, privateName, mark);
             // 获取到原始上传文件在服务器中的位置 -- example: english.docx
             String fileUrl = questionLibService.getFileUrl(saveUrl);
             try {
-                JSONObject res = questionLibService.createQuestionByLibFile(fileUrl, libId);
-                userQuestionService.addUserQuestion((List<Question>) res.get("data"));
+                JSONObject res = questionLibService.createQuestionByLibFile(fileUrl, libId, hasAnswer);
+                List<Question> questions = (List<Question>) res.get("data");
+                if (questions.size() == 0) {
+                    return Result.PARAMS_ERROR(res);
+                }
+                userQuestionService.addUserQuestion(questions);
                 return Result.SUCCESS(res);
             } catch (IOException e) {
-                Result res = Result.FAILD("");
-                res.setMessage("解析文件失败");
-                return res;
+                // 删除记录
+                deleteFaildRecord(libId, userLibId);
+                // 删除文件
+                questionLibService.deleteLibFile(saveUrl);
+                return Result.FAILD("解析文件失败");
             }
         } catch (NullPointerException e) {
             Result res = Result.FAILD(null);
@@ -87,7 +96,24 @@ public class QuestionLibController {
         }
     }
 
+    private void deleteFaildRecord(int libId, int userLibId) {
+        if (questionLibService.deleteLibById(libId)) {
+            userQuestionLibService.deleteUserLibById(userLibId);
+        }
+    }
 
+
+
+    @PostMapping("/user/lib/modify_info")
+    public Result changeLibName(@RequestBody LibSimpleInfoVO libVo) {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        try {
+            userQuestionLibService.modifyLibInfo(libVo);
+            return Result.SUCCESS();
+        } catch (IllegalArgumentException e) {
+            return Result.PARAMS_ERROR();
+        }
+    }
 
     @GetMapping("/question_lib/tags")
     public Result getTags() {
@@ -108,9 +134,8 @@ public class QuestionLibController {
         boolean userlib = userQuestionLibService.findByUsernameAndLibId(libId, username);
         if (userlib) {
             List<QuestionVO> questionVOList = libVO.getQuestions();
-            questionVOList.forEach(questionVO -> {
-                questionService.updateContent(questionVO.getId(), questionVO.getContent());
-            });
+            questionVOList.forEach(questionVO ->
+                    questionService.updateContent(questionVO.getId(), questionVO.getContent()));
             return Result.SUCCESS(null);
         }
         Result res = Result.FAILD(null);
@@ -119,19 +144,28 @@ public class QuestionLibController {
     }
 
     /**
+     * 删除上传的题库记录与用户题库记录
+     * @param id 题库Id
+     */
+    @PostMapping("/user/question_lib/delete")
+    public Result deleteLibId(@RequestParam("id") int id) {
+        String username = (String) SecurityUtils.getSubject().getPrincipal();
+        questionLibService.deleteLibById(id);
+        int userId = userQuestionLibService.findIdByUsernameAndLibId(id, username);
+        userQuestionLibService.deleteUserLibById(userId);
+        return Result.SUCCESS();
+    }
+
+    /**
      * 获取首页公共题库的信息,可以传入分类Id,获取专门的题库
      * @param page 页码 从1开始
-     * @param map  分页参数以及分类参数
      * @return List<QuestionLibVO>
      */
     @GetMapping("/question_lib/public/{page}")
-    public Result getPublicLib(@PathVariable("page") int page, @RequestBody Map<String, String> map) {
-        int limit = Integer.parseInt(map.get("limit"));
-        Integer typeId = null;
-        if (map.containsKey("typeId")) {
-            typeId = Integer.parseInt(map.get("typeId"));
-        }
+    public Result getPublicLib(@PathVariable("page") int page, @RequestParam("limit") int limit,
+                               @RequestParam(value = "typeId", required = false) Integer typeId) {
         List<QuestionLibVO> data = questionLibService.findPublicQuestionLibVOSPages(page, limit, typeId);
+        log.info("public lib info:{}", data);
         return Result.SUCCESS(data);
     }
 

@@ -5,11 +5,13 @@ package com.jxust.qq.superquestionlib.service;
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dao.mapper.QuestionMapper;
 import com.jxust.qq.superquestionlib.dto.Question;
+import com.jxust.qq.superquestionlib.util.QuestionTypeEnum;
 import com.jxust.qq.superquestionlib.vo.QuestionLibVO;
 import com.jxust.qq.superquestionlib.vo.QuestionVO;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -42,6 +44,7 @@ public class QuestionService {
 
     public String findAnswerByQuestionId(int questionId) {
         QuestionVO vo = questionMapper.selectQuestionById(questionId);
+        System.out.println("vo:" + vo);
         String answer;
         JSONObject JSONQuestion = JSONObject.parseObject(vo.getContent());
         answer = JSONQuestion.getString("answer");
@@ -70,4 +73,22 @@ public class QuestionService {
         return null;
     }
 
+
+    public List<JSONObject> findQuestionByLibId(int libId, String username){
+        List<QuestionVO> vos =
+                questionMapper.selectQuestionsByIdAndName(libId, username);
+        return vos.stream().map(vo -> {
+            JSONObject data = new JSONObject();
+            JSONObject question = JSONObject.parseObject(vo.getContent());
+            question.remove("answer");
+            data.put("content", question);
+            data.put("questionId", vo.getId());
+            return data;
+        }).collect(Collectors.toList());
+    }
+
+    public QuestionTypeEnum findQuestionType(QuestionVO questionVO) {
+        JSONObject qContent = JSONObject.parseObject(questionVO.getContent());
+        return QuestionTypeEnum.findTypeById(qContent.getInteger("type"));
+    }
 }

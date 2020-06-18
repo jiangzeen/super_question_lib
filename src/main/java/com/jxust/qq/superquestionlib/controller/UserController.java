@@ -2,6 +2,7 @@ package com.jxust.qq.superquestionlib.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jxust.qq.superquestionlib.dto.Result;
+import com.jxust.qq.superquestionlib.dto.SchoolInfo;
 import com.jxust.qq.superquestionlib.dto.User;
 import com.jxust.qq.superquestionlib.service.MailService;
 import com.jxust.qq.superquestionlib.service.RedisService;
@@ -66,6 +67,7 @@ public class UserController {
 
     @PostMapping("/register/send_code/{username}")
     public Result code(@PathVariable("username") String username) {
+        // todo 应该检查redis服务是否可用
         User user = userService.findUser(username);
         if (user != null) {
             return Result.FAILD(null);
@@ -85,6 +87,9 @@ public class UserController {
         token.setPassword(password.toCharArray());
         Result result;
         User user = userService.findUser(username);
+        if (user == null) {
+            return Result.HASAUTH(null);
+        }
         JSONObject data = new JSONObject();
         data.put("nickname", user.getUserNick());
         data.put("username", username);
@@ -92,13 +97,18 @@ public class UserController {
         if (subject.isAuthenticated()) {
             return Result.HASAUTH(data);
         }
+        String authToken;
         try {
             subject.login(token);
+            authToken = (String) subject.getSession().getId();
         } catch (IncorrectCredentialsException e) {
             result = Result.FAILD(username);
             return result;
         }
         userService.modifyLoginTime(username);
+        data.put("authToken", authToken);
+        redisService.setKeyValue(authToken, username);
+        redisService.setKeyExpire(authToken, 15*60);
         result = Result.SUCCESS(data);
         return result;
     }
@@ -121,6 +131,7 @@ public class UserController {
 
     @GetMapping("/user/info/{username}")
     public Result getUserInfo(@PathVariable String username) {
+        // todo 修改查找用户的方法,会出现NPE的异常
         UserVO vo = userService.findUserByUsername(username);
         if (vo != null) {
             return Result.SUCCESS(vo);
@@ -130,12 +141,28 @@ public class UserController {
     }
 
 
+    @GetMapping("/info/schools")
+    public Result schoolInfo() {
+        return Result.SUCCESS(userService.schoolInfos());
+    }
+
+    @GetMapping("/info/findSchool")
+    public Result findSchool(@RequestParam("username") String username) {
+        SchoolInfo info = userService.findSchool(username);
+        if (info == null) {
+            return Result.PARAMS_ERROR();
+        }
+        return Result.SUCCESS(info);
+    }
+
     @PostMapping("/user/complete_info")
     public Result completeInfo(@RequestBody UserVO userVO) {
         String username = (String) SecurityUtils.getSubject().getPrincipal();
         userVO.setUsername(username);
-        userService.completeInfo(username, userVO.getNickname(),userVO.getSex(),
-                Integer.parseInt(userVO.getSchoolInfo()));
+        if (userVO.getSchoolInfo() != null) {
+
+        }
+        userService.completeInfo(username, userVO.getNickname(),userVO.getSex(), userVO.getSchoolId());
         return Result.SUCCESS(null);
     }
 

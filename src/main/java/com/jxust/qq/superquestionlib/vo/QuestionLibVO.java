@@ -10,6 +10,9 @@ public class QuestionLibVO {
     private String username;
     private String libName;
     private int importance;
+    private String privateName;
+    private String mark;
     private String typeName;
+    private String tagImgUrl;
     private List<QuestionVO> questions;
 }

@@ -13,6 +13,11 @@
         value (#{lib.questionLibLevel}, #{lib.questionLibName},
         #{lib.questionLibCreateTime}, #{lib.questionLibTagId}, #{lib.questionLibMark}, #{lib.questionLibUrl}, #{lib.hasPrivate});
     </insert>
+
+    <delete id="deleteLibById">
+        delete from sq_question_lib
+        where question_lib_id = #{libId};
+    </delete>
     <select id="selectQuestionLibById" resultType="com.jxust.qq.superquestionlib.dto.QuestionLib">
         select <include refid="base_column"/>
         from sq_question_lib where sq_question_lib.question_lib_id = #{id}
@@ -25,7 +30,8 @@
                sq_lib.question_lib_id,
                sq_lib.question_lib_name,
                sq_user_lib.user_name,
-               sq_tag.lib_tag_name
+               sq_tag.lib_tag_name,
+               sq_tag.tag_img_url
         from sq_question_lib sq_lib
         left join sq_user_question_lib sq_user_lib on sq_user_lib.question_lib_id = sq_lib.question_lib_id
         left join sq_lib_tag sq_tag on sq_lib.question_lib_tag_id = sq_tag.lib_tag_id
@@ -59,5 +65,6 @@
         <result column="question_lib_name" property="libName"/>
         <result column="user_name" property="username"/>
         <result column="lib_tag_name" property="typeName"/>
+        <result column="tag_img_url" property="tagImgUrl"/>
     </resultMap>
 </mapper>

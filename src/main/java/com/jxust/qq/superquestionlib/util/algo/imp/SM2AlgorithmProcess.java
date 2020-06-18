@@ -27,6 +27,7 @@ public class SM2AlgorithmProcess implements QuestionProcess {
         repetitions = question.getRepetitions();
         easiness = question.getEasiness();
         interval = question.getInterval();
+        System.out.println("quality:" + quality);
         if (quality == null) {
             throw new IllegalArgumentException("quality must not be null");
         }
